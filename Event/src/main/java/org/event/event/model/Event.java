@@ -1,6 +1,8 @@
 package org.event.event.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,22 +23,22 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
+    @NotBlank(message = "Event name cannot be empty")
     private String name;
 
-    @Column(nullable = false)
+    @NotBlank(message = "Event description cannot be empty")
     private String description;
 
-    @Column(nullable = false)
+    @NotBlank(message = "Photo URL cannot be empty")
     private String photoUrl;
 
-    @Column(nullable = false)
+    @NotNull(message = "Event date cannot be null")
     private LocalDateTime date;
 
-    @Column(nullable = false)
+    @NotBlank(message = "Event venue cannot be empty")
     private String venue;
 
-    @Column(nullable = false)
+    @NotNull(message = "Creator ID cannot be null")
     private UUID createdBy;
 
     @CreationTimestamp

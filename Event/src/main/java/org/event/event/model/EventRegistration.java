@@ -1,6 +1,7 @@
 package org.event.event.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,8 +21,10 @@ public class EventRegistration {
 
     @ManyToOne
     @JoinColumn(nullable = false)
-    private Event eventId;
+    @NotNull(message = "Event cannot be null")
+    private Event event;
 
+    @NotNull(message = "Athlete ID cannot be null")
     @Column(nullable = false)
     private UUID athleteId;
 

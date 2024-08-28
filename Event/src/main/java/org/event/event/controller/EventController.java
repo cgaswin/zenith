@@ -1,8 +1,10 @@
 package org.event.event.controller;
 
+import jakarta.validation.Valid;
+import org.event.event.dto.EventResponseDTO;
 import org.event.event.exceptions.EventNotFoundException;
-import org.event.event.exceptions.InvalidEventDataException;
 import org.event.event.dto.ResponseDTO;
+import org.event.event.mappers.EventMapper;
 import org.event.event.model.Event;
 import org.event.event.service.impl.EventServiceImpl;
 import org.slf4j.Logger;
@@ -14,33 +16,33 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/events")
 public class EventController {
     private static final Logger logger = LoggerFactory.getLogger(EventController.class);
     private final EventServiceImpl eventService;
+    private final EventMapper eventMapper;
 
     @Autowired
-    public EventController(EventServiceImpl eventService) {
+    public EventController(EventServiceImpl eventService, EventMapper eventMapper) {
         this.eventService = eventService;
+        this.eventMapper = eventMapper;
     }
 
-    @PostMapping("/events")
-    public ResponseEntity<ResponseDTO<Event>> createEvent(@RequestBody Event event) {
+    @PostMapping
+    public ResponseEntity<ResponseDTO<EventResponseDTO>> createEvent(@Valid @RequestBody Event event) {
         logger.info("Received request to create event: {}", event);
-        if (event.getName() == null || event.getName().isEmpty()) {
-            logger.warn("Attempt to create event with empty name");
-            throw new InvalidEventDataException("Event name cannot be empty");
-        }
         Event createdEvent = eventService.createEvent(event);
-        logger.info("Event created successfully: {}", createdEvent);
-        ResponseDTO<Event> response = new ResponseDTO<>("Event created successfully", true, createdEvent);
+        EventResponseDTO createdEventDTO = eventMapper.eventToEventResponseDTO(createdEvent);
+        logger.info("Event created successfully: {}", createdEventDTO);
+        ResponseDTO<EventResponseDTO> response = new ResponseDTO<>("Event created successfully", true, createdEventDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @GetMapping("/events")
-    public ResponseEntity<ResponseDTO<List<Event>>> getEvents(
+    @GetMapping
+    public ResponseEntity<ResponseDTO<List<EventResponseDTO>>> getEvents(
             @RequestParam(required = false) String venue,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) UUID createdBy,
@@ -67,22 +69,26 @@ public class EventController {
             message = "All events retrieved successfully";
         }
 
-        logger.info("Retrieved {} events", events.size());
-        ResponseDTO<List<Event>> response = new ResponseDTO<>(message, true, events);
+        List<EventResponseDTO> eventDTOs = events.stream()
+                .map(eventMapper::eventToEventResponseDTO)
+                .collect(Collectors.toList());
+
+        logger.info("Retrieved {} events", eventDTOs.size());
+        ResponseDTO<List<EventResponseDTO>> response = new ResponseDTO<>(message, true, eventDTOs);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/events/{id}")
-    public ResponseEntity<ResponseDTO<Event>> getEventById(@PathVariable UUID id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseDTO<EventResponseDTO>> getEventById(@PathVariable UUID id) {
         logger.info("Received request to get event by id: {}", id);
         Event event = eventService.getEventById(id)
                 .orElseThrow(() -> {
                     logger.warn("Event not found with id: {}", id);
                     return new EventNotFoundException("Event not found with id: " + id);
                 });
-        logger.info("Retrieved event: {}", event);
-        ResponseDTO<Event> response = new ResponseDTO<>("Event retrieved successfully", true, event);
+        EventResponseDTO eventDTO = eventMapper.eventToEventResponseDTO(event);
+        logger.info("Retrieved event: {}", eventDTO);
+        ResponseDTO<EventResponseDTO> response = new ResponseDTO<>("Event retrieved successfully", true, eventDTO);
         return ResponseEntity.ok(response);
     }
-
 }
