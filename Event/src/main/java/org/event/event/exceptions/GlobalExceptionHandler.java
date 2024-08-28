@@ -30,13 +30,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EventNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponseDTO handleEventNotFoundException(EventNotFoundException ex, WebRequest request) {
-        return createErrorResponse(HttpStatus.NOT_FOUND, "Not Found", ex.getMessage(), request, null);
+        return createErrorResponse(HttpStatus.NOT_FOUND, "Event Not Found", ex.getMessage(), request, null);
     }
 
     @ExceptionHandler(EventItemNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponseDTO handleEventItemNotFoundException(EventItemNotFoundException ex, WebRequest request) {
-        return createErrorResponse(HttpStatus.NOT_FOUND, "Not Found", ex.getMessage(), request, null);
+        return createErrorResponse(HttpStatus.NOT_FOUND, "Event Item Not Found", ex.getMessage(), request, null);
+    }
+
+    @ExceptionHandler(EventRegistrationNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponseDTO handleEventRegistrationNotFoundException(EventRegistrationNotFoundException ex, WebRequest request){
+        return createErrorResponse(HttpStatus.NOT_FOUND,"Event Registration Not Found", ex.getMessage(), request,null);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

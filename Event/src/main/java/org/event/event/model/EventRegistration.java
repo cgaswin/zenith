@@ -17,12 +17,18 @@ import java.util.UUID;
 public class EventRegistration {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(nullable = false, unique = true)
     private UUID id;
 
     @ManyToOne
     @JoinColumn(nullable = false)
     @NotNull(message = "Event cannot be null")
     private Event event;
+
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    @NotNull(message = "Event item cannot be null")
+    private EventItem eventItem;
 
     @NotNull(message = "Athlete ID cannot be null")
     @Column(nullable = false)

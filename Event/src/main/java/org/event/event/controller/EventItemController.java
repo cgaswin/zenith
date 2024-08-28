@@ -51,6 +51,7 @@ public class EventItemController {
 
         EventItem eventItem = eventItemMapper.eventItemRequestDtoToEventItem(eventItemDTO);
         eventItem.setEvent(event);
+
         EventItem createdEventItem = eventItemService.createEventItem(eventItem);
         EventItemResponseDTO createdEventItemDTO = eventItemMapper.eventItemToEventItemResponseDTO(createdEventItem);
         logger.info("Event item created successfully: {}", createdEventItemDTO);
