@@ -5,16 +5,17 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Performance {
+public class Result {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -27,17 +28,18 @@ public class Performance {
     @ManyToOne
     @JoinColumn(nullable = false)
     @NotNull(message = "Event item cannot be null")
-    private EventItem item;
+    private EventItem eventItem;
 
     @NotNull(message = "Athlete ID cannot be null")
     @Column(nullable = false)
     private UUID athleteId;
 
-    @NotNull(message = "Performance date cannot be null")
-    @Column(nullable = false)
-    private LocalDate performanceDate;
-
     @Column(nullable = false, precision = 5, scale = 2)
     @NotNull(message = "Score cannot be null")
     private BigDecimal score;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime publishedDate;
 }
+

@@ -1,4 +1,4 @@
-package org.event.event.dto;
+package org.event.event.exceptions;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
