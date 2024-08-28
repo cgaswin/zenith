@@ -31,20 +31,19 @@ public class Event {
     private String photoUrl;
 
     @Column(nullable = false)
-    private LocalDate date;
+    private LocalDateTime date;
 
     @Column(nullable = false)
     private String venue;
 
-    @Column(name = "created_by", nullable = false)
+    @Column(nullable = false)
     private UUID createdBy;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
 }

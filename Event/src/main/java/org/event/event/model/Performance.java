@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -28,17 +29,13 @@ public class Performance {
     @Column(nullable = false)
     private UUID athleteId;
 
-    @Column(nullable = false)
-    private RESULT result;
 
     @Column(nullable = false)
     private LocalDate performanceDate;
 
-    public enum RESULT {
-        FIRST,
-        SECOND,
-        THIRD,
-        NONE
-    }
+    @Column(nullable = false, precision = 5, scale = 2)
+    private BigDecimal score;
+
+
 
 }
