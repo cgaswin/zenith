@@ -41,6 +41,31 @@ public class GlobalExceptionHandler {
         return createErrorResponse(HttpStatus.NOT_FOUND, "Coach Not Found", ex.getMessage(), request, null);
     }
 
+    @ExceptionHandler(CoachingRelationshipNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponseDTO handleCoachingRelationshipNotFoundException(CoachingRelationshipNotFoundException ex, WebRequest request) {
+        return createErrorResponse(HttpStatus.NOT_FOUND, "Coaching Relationship Not Found", ex.getMessage(), request, null);
+    }
+
+    @ExceptionHandler(CoachingRequestNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponseDTO handleCoachingRequestNotFoundException(CoachingRequestNotFoundException ex, WebRequest request) {
+        return createErrorResponse(HttpStatus.NOT_FOUND, "Coaching Request Not Found", ex.getMessage(), request, null);
+    }
+
+    @ExceptionHandler(CoachAlreadyAssignedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponseDTO handleCoachAlreadyAssignedException(CoachAlreadyAssignedException ex, WebRequest request) {
+        return createErrorResponse(HttpStatus.NOT_FOUND, "Coach Already Assigned ", ex.getMessage(), request, null);
+    }
+
+    @ExceptionHandler(CoachNotAvailableForRequestException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponseDTO handleCoachNotAvailableForRequestException(CoachNotAvailableForRequestException ex, WebRequest request) {
+        return createErrorResponse(HttpStatus.NOT_FOUND, "Coach is not available to accept request", ex.getMessage(), request, null);
+    }
+
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponseDTO handleValidationExceptions(MethodArgumentNotValidException ex, WebRequest request) {

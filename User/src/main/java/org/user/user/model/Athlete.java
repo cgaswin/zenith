@@ -23,8 +23,6 @@ public class Athlete {
     @NotNull(message = "User cannot be empty")
     private UUID userId;
 
-    @ManyToOne
-    private Coach coach;
 
     @NotBlank(message = "Name cannot be empty")
     private String name;

@@ -19,23 +19,18 @@ public class CoachingRequest {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @NotNull(message = "Athlete cannot be null")
-    @ManyToOne
-    @JoinColumn(nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Athlete athlete;
 
-    @ManyToOne
-    @JoinColumn(nullable = false)
-    @NotNull(message = "Coach cannot be null")
+    @ManyToOne(fetch = FetchType.EAGER)
     private Coach coach;
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.PENDING;
 
     @CreationTimestamp
-    private LocalDateTime request_date;
+    private LocalDateTime requestDate;
 
-    private LocalDateTime response_date;
 
 
     public enum Status{
