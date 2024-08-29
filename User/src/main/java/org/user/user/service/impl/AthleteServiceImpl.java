@@ -47,4 +47,5 @@ public class AthleteServiceImpl implements AthleteService {
     public List<Athlete> getAllAthletes() {
         return athleteRepository.findAll();
     }
+
 }

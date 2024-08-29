@@ -22,8 +22,6 @@ public class CoachingRelationship {
     @OneToOne
     private Athlete athlete;
 
-    @ManyToOne
-    private Coach coach;
 
     @CreationTimestamp
     private LocalDateTime startDate;

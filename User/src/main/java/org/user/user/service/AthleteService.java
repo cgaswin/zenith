@@ -10,6 +10,5 @@ public interface AthleteService {
     Athlete createAthlete(Athlete athlete);
     Optional<Athlete> getAthleteById(UUID id);
     Athlete updateAthlete(UUID id, Athlete athlete);
-
     List<Athlete> getAllAthletes();
 }

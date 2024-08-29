@@ -1,9 +1,6 @@
 package org.user.user.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -18,6 +15,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = "UserId"))
 public class Coach {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -33,15 +31,15 @@ public class Coach {
 
     private String photoUrl;
 
-    private boolean is_accepting_requests=true;
+    private boolean isAcceptingRequests=true;
 
     private String achievements;
 
-    private List<String> getAchievements(){
+    public List<String> getAchievements(){
         return this.achievements!=null ? Arrays.asList(achievements.split(",")):null;
     }
 
-    private void setAchievements(List<String> achievements){
+    public void setAchievements(List<String> achievements){
         this.achievements = achievements!=null?String.join(",",achievements):null;
     }
 

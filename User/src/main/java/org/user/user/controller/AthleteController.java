@@ -34,8 +34,9 @@ public class AthleteController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDTO<AthleteResponseDTO>> createAthlete(@Valid @RequestBody Athlete athlete) {
-        logger.info("Received request to create athlete: {}", athlete);
+    public ResponseEntity<ResponseDTO<AthleteResponseDTO>> createAthlete(@Valid @RequestBody AthleteRequestDTO athleteRequest) {
+        logger.info("Received request to create athlete: {}", athleteRequest);
+        Athlete athlete = athleteMapper.athleteRequestDtoToAthlete(athleteRequest);
         Athlete createdAthlete = athleteService.createAthlete(athlete);
         AthleteResponseDTO createdAthleteDTO = athleteMapper.athleteToAthleteResponseDTO(createdAthlete);
         logger.info("Athlete created successfully: {}", createdAthleteDTO);
