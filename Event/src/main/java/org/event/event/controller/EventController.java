@@ -19,7 +19,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/events")
+@RequestMapping("/api/v1/event")
 public class EventController {
     private static final Logger logger = LoggerFactory.getLogger(EventController.class);
     private final EventServiceImpl eventService;

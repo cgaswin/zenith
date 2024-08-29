@@ -4,7 +4,7 @@ server:
 
 spring:
   application:
-    name: Event
+    name: event-service
   datasource:
     url: jdbc:postgresql://localhost:5432/event
     username: postgres
@@ -21,7 +21,11 @@ springdoc:
 
 
 eureka:
+  instance:
+    hostname: localhost
   client:
     service-url:
       defaultZone: http://localhost:8090/eureka
+    register-with-eureka: true
+    fetch-registry: true
 

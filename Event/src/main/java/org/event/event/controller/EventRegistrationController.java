@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/register")
+@RequestMapping("/api/v1/registration")
 public class EventRegistrationController {
     private static final Logger logger = LoggerFactory.getLogger(EventRegistrationController.class);
     private final EventRegistrationServiceImpl eventRegistrationService;
@@ -43,7 +43,7 @@ public class EventRegistrationController {
         this.eventItemService=eventItemService;
     }
 
-    @PostMapping
+    @PostMapping("/")
     public ResponseEntity<ResponseDTO<EventRegistrationResponseDTO>> createEventRegistration(
             @RequestBody EventRegistrationRequestDTO requestDTO) {
         logger.info("Received request to create event registration: {}", requestDTO);

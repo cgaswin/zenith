@@ -10,12 +10,10 @@ import org.user.user.dto.CoachingRequestResponseDTO;
 import org.user.user.dto.ResponseDTO;
 import org.user.user.exception.CoachingRequestNotFoundException;
 import org.user.user.mapper.CoachingRequestMapper;
-import org.user.user.model.CoachingRelationship;
 import org.user.user.model.CoachingRequest;
 import org.user.user.service.impl.CoachingRequestServiceImpl;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 

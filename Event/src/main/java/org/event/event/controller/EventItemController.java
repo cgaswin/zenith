@@ -25,7 +25,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/eventItems")
+@RequestMapping("/api/v1/eventItem")
 public class EventItemController {
 
     private static final Logger logger = LoggerFactory.getLogger(EventItemController.class);

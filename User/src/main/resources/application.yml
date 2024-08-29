@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: User
+    name: user-service
   datasource:
     url: jdbc:postgresql://localhost:5432/user
     username: postgres
@@ -19,6 +19,10 @@ springdoc:
     path: /api-docs
 
 eureka:
+  instance:
+    hostname: localhost
   client:
     service-url:
       defaultZone: http://localhost:8090/eureka
+    register-with-eureka: true
+    fetch-registry: true
