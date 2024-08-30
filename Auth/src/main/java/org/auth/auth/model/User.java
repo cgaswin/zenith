@@ -1,13 +1,14 @@
 package org.auth.auth.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.Collection;
 import java.util.List;
@@ -17,7 +18,10 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "app_user")
+@Table(name = "app_user",uniqueConstraints = {
+        @UniqueConstraint(columnNames = "username"),
+        @UniqueConstraint(columnNames = "email")
+})
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -25,9 +29,17 @@ public class User implements UserDetails {
 
     private String name;
 
+    @NotBlank(message = "Username is required")
+    @Column(nullable = false, unique = true)
     private String username;
 
     private String password;
+
+
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email should be valid")
+    @Column(nullable = false, unique = true)
+    private String email;
 
     @Enumerated(value = EnumType.STRING)
     private Role role;

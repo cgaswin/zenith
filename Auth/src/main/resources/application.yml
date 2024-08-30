@@ -4,7 +4,7 @@ spring:
   application:
     name: auth-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/event
+    url: jdbc:postgresql://localhost:5432/auth
     username: postgres
     password: root
     driver-class-name: org.postgresql.Driver
@@ -25,4 +25,4 @@ springdoc:
     enabled: true
 
 jwt:
-  secret: UrKB1Nwvq/tssqPPQBBlXO8MtSP3qTCulJ51Y5kiIvwADOHt1geLCqeB76btWrp2kiLjtgPID2fcIwFLv9UX0Q==
+  secret: bf46de53d0281ba765ff3c2d4512b714c8732ac7a36c73ae61739691690bcb0c
