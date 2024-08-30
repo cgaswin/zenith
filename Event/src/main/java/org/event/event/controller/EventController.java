@@ -1,7 +1,10 @@
 package org.event.event.controller;
 
 import jakarta.validation.Valid;
+import org.event.event.commons.utils.JwtDecoder;
 import org.event.event.dto.EventResponseDTO;
+import org.event.event.dto.JwtPayloadDTO;
+import org.event.event.exceptions.AuthorizationException;
 import org.event.event.exceptions.EventNotFoundException;
 import org.event.event.dto.ResponseDTO;
 import org.event.event.mappers.EventMapper;
@@ -24,16 +27,36 @@ public class EventController {
     private static final Logger logger = LoggerFactory.getLogger(EventController.class);
     private final EventServiceImpl eventService;
     private final EventMapper eventMapper;
+    private final JwtDecoder jwtDecoder;
 
     @Autowired
-    public EventController(EventServiceImpl eventService, EventMapper eventMapper) {
+    public EventController(EventServiceImpl eventService, EventMapper eventMapper, JwtDecoder jwtDecoder) {
         this.eventService = eventService;
         this.eventMapper = eventMapper;
+        this.jwtDecoder = jwtDecoder;
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDTO<EventResponseDTO>> createEvent(@Valid @RequestBody Event event) {
+    public ResponseEntity<ResponseDTO<EventResponseDTO>> createEvent(@RequestBody Event event,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         logger.info("Received request to create event: {}", event);
+        if (authorizationHeader == null || authorizationHeader.isEmpty()) {
+            throw new AuthorizationException("Authorization header is missing");
+        }
+
+        String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
+        if(token.isEmpty()){
+            throw new AuthorizationException("Authorization token is missing");
+        }
+
+        JwtPayloadDTO credentials = jwtDecoder.decodeJwt(token);
+        logger.info(credentials.toString());
+        logger.info(credentials.getRole());
+        if(!"ADMIN".equalsIgnoreCase(credentials.getRole())){
+            throw new AuthorizationException("You do not have permission to access");
+        }
+
+        event.setCreatedBy(UUID.fromString(credentials.getUserId()));
+        logger.info("event {}",event);
         Event createdEvent = eventService.createEvent(event);
         EventResponseDTO createdEventDTO = eventMapper.eventToEventResponseDTO(createdEvent);
         logger.info("Event created successfully: {}", createdEventDTO);

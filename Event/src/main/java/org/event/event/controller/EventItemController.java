@@ -1,10 +1,13 @@
 package org.event.event.controller;
 
 import jakarta.validation.Valid;
+import org.event.event.commons.utils.JwtDecoder;
 import org.event.event.dto.EventItemRequestDTO;
 import org.event.event.dto.EventItemResponseDTO;
 
+import org.event.event.dto.JwtPayloadDTO;
 import org.event.event.dto.ResponseDTO;
+import org.event.event.exceptions.AuthorizationException;
 import org.event.event.exceptions.EventItemNotFoundException;
 import org.event.event.exceptions.EventNotFoundException;
 import org.event.event.mappers.EventItemMapper;
@@ -32,17 +35,35 @@ public class EventItemController {
     private final EventItemServiceImpl eventItemService;
     private final EventItemMapper eventItemMapper;
     private final EventServiceImpl eventService;
+    private final JwtDecoder jwtDecoder;
 
     @Autowired
-    public EventItemController(EventItemServiceImpl eventItemService,EventItemMapper eventItemMapper,EventServiceImpl eventService) {
+    public EventItemController(EventItemServiceImpl eventItemService, EventItemMapper eventItemMapper, EventServiceImpl eventService, JwtDecoder jwtDecoder) {
         this.eventItemService = eventItemService;
         this.eventItemMapper = eventItemMapper;
         this.eventService = eventService;
+        this.jwtDecoder = jwtDecoder;
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDTO<EventItemResponseDTO>> createEventItem(@Valid @RequestBody EventItemRequestDTO eventItemDTO) {
-        logger.info("Received request to create event item: {}", eventItemDTO);
+    public ResponseEntity<ResponseDTO<EventItemResponseDTO>> createEventItem( @RequestBody EventItemRequestDTO eventItemDTO,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+        logger.info("Received request to create event: {}", eventItemDTO);
+        if (authorizationHeader == null || authorizationHeader.isEmpty()) {
+            throw new AuthorizationException("Authorization header is missing");
+        }
+
+        String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
+        if(token.isEmpty()){
+            throw new AuthorizationException("Authorization token is missing");
+        }
+
+        JwtPayloadDTO credentials = jwtDecoder.decodeJwt(token);
+        logger.info(credentials.toString());
+        logger.info(credentials.getRole());
+        if(!"ADMIN".equalsIgnoreCase(credentials.getRole())){
+            throw new AuthorizationException("You do not have permission to access");
+        }
+        eventItemDTO.setCreatedBy(UUID.fromString(credentials.getUserId()));
         Event event = eventService.getEventById(eventItemDTO.getEventId())
                 .orElseThrow(() -> {
                     logger.warn("Event not found with id: {}",eventItemDTO.getEventId());

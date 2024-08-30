@@ -1,8 +1,11 @@
 package org.event.event.controller;
 
+import org.event.event.commons.utils.JwtDecoder;
 import org.event.event.dto.EventRegistrationRequestDTO;
 import org.event.event.dto.EventRegistrationResponseDTO;
+import org.event.event.dto.JwtPayloadDTO;
 import org.event.event.dto.ResponseDTO;
+import org.event.event.exceptions.AuthorizationException;
 import org.event.event.exceptions.EventItemNotFoundException;
 import org.event.event.exceptions.EventNotFoundException;
 import org.event.event.exceptions.EventRegistrationNotFoundException;
@@ -33,20 +36,41 @@ public class EventRegistrationController {
     private final EventRegistrationMapper eventRegistrationMapper;
     private final EventServiceImpl eventService;
     private final EventItemServiceImpl eventItemService;
+    private final JwtDecoder jwtDecoder;
 
     @Autowired
     public EventRegistrationController(EventRegistrationServiceImpl eventRegistrationService,
-                                       EventRegistrationMapper eventRegistrationMapper,EventServiceImpl eventService,EventItemServiceImpl eventItemService) {
+                                       EventRegistrationMapper eventRegistrationMapper, EventServiceImpl eventService, EventItemServiceImpl eventItemService, JwtDecoder jwtDecoder) {
         this.eventRegistrationService = eventRegistrationService;
         this.eventRegistrationMapper = eventRegistrationMapper;
         this.eventService=eventService;
         this.eventItemService=eventItemService;
+        this.jwtDecoder = jwtDecoder;
     }
 
     @PostMapping("/")
     public ResponseEntity<ResponseDTO<EventRegistrationResponseDTO>> createEventRegistration(
-            @RequestBody EventRegistrationRequestDTO requestDTO) {
-        logger.info("Received request to create event registration: {}", requestDTO);
+            @RequestBody EventRegistrationRequestDTO requestDTO,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader
+    ) {
+        logger.info("Received request to create event: {}", requestDTO);
+
+        if (authorizationHeader == null || authorizationHeader.isEmpty()) {
+            throw new AuthorizationException("Authorization header is missing");
+        }
+
+        String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
+        if(token.isEmpty()){
+            throw new AuthorizationException("Authorization token is missing");
+        }
+
+        JwtPayloadDTO credentials = jwtDecoder.decodeJwt(token);
+        logger.info(credentials.toString());
+        logger.info(credentials.getRole());
+        if(!"ATHLETE".equalsIgnoreCase(credentials.getRole())){
+            throw new AuthorizationException("You do not have permission to access");
+        }
+
 
         Event event = eventService.getEventById(requestDTO.getEventId())
                 .orElseThrow(() -> {
@@ -151,8 +175,25 @@ public class EventRegistrationController {
     @PatchMapping("/{id}/status")
     public ResponseEntity<ResponseDTO<EventRegistrationResponseDTO>> updateStatus(
             @PathVariable UUID id,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @RequestParam Status status) {
         logger.info("Received request to update status for event registration ID: {}", id);
+
+        if (authorizationHeader == null || authorizationHeader.isEmpty()) {
+            throw new AuthorizationException("Authorization header is missing");
+        }
+
+        String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
+        if(token.isEmpty()){
+            throw new AuthorizationException("Authorization token is missing");
+        }
+
+        JwtPayloadDTO credentials = jwtDecoder.decodeJwt(token);
+        logger.info(credentials.toString());
+        logger.info(credentials.getRole());
+        if(!"ADMIN".equalsIgnoreCase(credentials.getRole())){
+            throw new AuthorizationException("You do not have permission to access");
+        }
 
         EventRegistration existingRegistration = eventRegistrationService.getEventRegistrationById(id)
                 .orElseThrow(() -> new EventRegistrationNotFoundException("Event registration not found with id: " + id));

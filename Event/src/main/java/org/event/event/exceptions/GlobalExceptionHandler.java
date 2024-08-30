@@ -52,6 +52,12 @@ public class GlobalExceptionHandler {
         return createErrorResponse(HttpStatus.NOT_FOUND,"Result Not Found", ex.getMessage(), request,null);
     }
 
+    @ExceptionHandler(AuthorizationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponseDTO handleAuthorizationException(AuthorizationException ex, WebRequest request){
+        return createErrorResponse(HttpStatus.NOT_FOUND,"Authorization error", ex.getMessage(), request,null);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponseDTO handleValidationExceptions(MethodArgumentNotValidException ex, WebRequest request) {
