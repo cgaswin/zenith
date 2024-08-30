@@ -14,7 +14,6 @@ import java.util.UUID;
 public class CoachRequestDTO {
     @NotNull(message = "userId is null")
     private UUID userId;
-    private String name;
     private String description;
     private String photoUrl;
     private List<String> achievements;

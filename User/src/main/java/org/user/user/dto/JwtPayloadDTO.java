@@ -1,5 +1,6 @@
 package org.user.user.dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,10 +8,9 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class AthleteResponseDTO {
-    private UUID id;
-    private String description;
-    private String photoUrl;
+@AllArgsConstructor
+public class JwtPayloadDTO {
+    private String userId;
+    private  String role;
 }

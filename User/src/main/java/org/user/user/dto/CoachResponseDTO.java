@@ -12,7 +12,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CoachResponseDTO {
     private UUID id;
-    private String name;
     private String description;
     private String photoUrl;
     private List<String> achievements;

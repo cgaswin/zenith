@@ -24,8 +24,6 @@ public class Coach {
     @NotNull(message = "User cannot be empty")
     private UUID user_id;
 
-    @NotBlank(message = "Name cannot be empty")
-    private String name;
 
     private String description;
 

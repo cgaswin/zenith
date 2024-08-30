@@ -5,9 +5,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.user.user.commons.utils.JwtDecoder;
 import org.user.user.dto.CoachingRequestRequestDTO;
 import org.user.user.dto.CoachingRequestResponseDTO;
+import org.user.user.dto.JwtPayloadDTO;
 import org.user.user.dto.ResponseDTO;
+import org.user.user.exception.AuthorizationException;
 import org.user.user.exception.CoachingRequestNotFoundException;
 import org.user.user.mapper.CoachingRequestMapper;
 import org.user.user.model.CoachingRequest;
@@ -24,15 +27,33 @@ public class CoachingRequestController {
 
     private final CoachingRequestServiceImpl coachingRequestService;
     private final CoachingRequestMapper coachingRequestMapper;
+    private final JwtDecoder jwtDecoder;
 
-    public CoachingRequestController(CoachingRequestServiceImpl coachingRequestService, CoachingRequestMapper coachingRequestMapper) {
+    public CoachingRequestController(CoachingRequestServiceImpl coachingRequestService, CoachingRequestMapper coachingRequestMapper, JwtDecoder jwtDecoder) {
         this.coachingRequestService = coachingRequestService;
         this.coachingRequestMapper = coachingRequestMapper;
+        this.jwtDecoder = jwtDecoder;
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDTO<CoachingRequestResponseDTO>> createCoachingRequest(@RequestBody CoachingRequestRequestDTO coachingRequestRequestDTO) {
+    public ResponseEntity<ResponseDTO<CoachingRequestResponseDTO>> createCoachingRequest(@RequestBody CoachingRequestRequestDTO coachingRequestRequestDTO,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         logger.info("Received request to create coaching request: {}", coachingRequestRequestDTO);
+        if (authorizationHeader == null || authorizationHeader.isEmpty()) {
+            throw new AuthorizationException("Authorization header is missing");
+        }
+
+        String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
+        if(token.isEmpty()){
+            throw new AuthorizationException("Authorization token is missing");
+        }
+
+        JwtPayloadDTO credentials = jwtDecoder.decodeJwt(token);
+        logger.info(credentials.toString());
+        logger.info(credentials.getRole());
+        if(!"ATHLETE".equalsIgnoreCase(credentials.getRole())){
+            throw new AuthorizationException("You do not have permission to access");
+        }
+
 
         CoachingRequest coachingRequest = coachingRequestMapper.coachingRequestRequestDtoToCoachingRequest(coachingRequestRequestDTO);
         CoachingRequest createdCoachingRequest = coachingRequestService.createCoachingRequest(coachingRequest);
@@ -44,8 +65,24 @@ public class CoachingRequestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseDTO<CoachingRequestResponseDTO>> getCoachingRequestById(@PathVariable UUID id) {
+    public ResponseEntity<ResponseDTO<CoachingRequestResponseDTO>> getCoachingRequestById(@PathVariable UUID id,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         logger.info("Received request to get coaching request with ID: {}", id);
+        if (authorizationHeader == null || authorizationHeader.isEmpty()) {
+            throw new AuthorizationException("Authorization header is missing");
+        }
+
+        String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
+        if(token.isEmpty()){
+            throw new AuthorizationException("Authorization token is missing");
+        }
+
+        JwtPayloadDTO credentials = jwtDecoder.decodeJwt(token);
+        logger.info(credentials.toString());
+        logger.info(credentials.getRole());
+        if(!"ADMIN".equalsIgnoreCase(credentials.getRole())){
+            throw new AuthorizationException("You do not have permission to access");
+        }
+
 
         CoachingRequest coachingRequest = coachingRequestService.getCoachingRequestById(id)
                 .orElseThrow(() -> {
@@ -59,8 +96,25 @@ public class CoachingRequestController {
     }
 
     @GetMapping("/athlete/{athleteId}")
-    public ResponseEntity<ResponseDTO<List<CoachingRequestResponseDTO>>> getCoachingRequestsByAthleteId(@PathVariable UUID athleteId) {
+    public ResponseEntity<ResponseDTO<List<CoachingRequestResponseDTO>>> getCoachingRequestsByAthleteId(@PathVariable UUID athleteId,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         logger.info("Received request to get coaching requests for athlete with ID: {}", athleteId);
+        if (authorizationHeader == null || authorizationHeader.isEmpty()) {
+            throw new AuthorizationException("Authorization header is missing");
+        }
+
+        String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
+        if(token.isEmpty()){
+            throw new AuthorizationException("Authorization token is missing");
+        }
+
+        JwtPayloadDTO credentials = jwtDecoder.decodeJwt(token);
+        logger.info(credentials.toString());
+        logger.info(credentials.getRole());
+        if(!"ADMIN".equalsIgnoreCase(credentials.getRole()) &&!"ATHLETE".equalsIgnoreCase(credentials.getRole())){
+            throw new AuthorizationException("You do not have permission to access");
+        }
+
+
 
         List<CoachingRequest> coachingRequests = coachingRequestService.getCoachingRequestsByAthleteId(athleteId);
         List<CoachingRequestResponseDTO> responseDTOList = coachingRequests.stream()
@@ -73,8 +127,25 @@ public class CoachingRequestController {
     }
 
     @GetMapping("/coach/{coachId}")
-    public ResponseEntity<ResponseDTO<List<CoachingRequestResponseDTO>>> getCoachingRequestsByCoachId(@PathVariable UUID coachId) {
+    public ResponseEntity<ResponseDTO<List<CoachingRequestResponseDTO>>> getCoachingRequestsByCoachId(@PathVariable UUID coachId,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         logger.info("Received request to get coaching requests for coach with ID: {}", coachId);
+        if (authorizationHeader == null || authorizationHeader.isEmpty()) {
+            throw new AuthorizationException("Authorization header is missing");
+        }
+
+        String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
+        if(token.isEmpty()){
+            throw new AuthorizationException("Authorization token is missing");
+        }
+
+        JwtPayloadDTO credentials = jwtDecoder.decodeJwt(token);
+        logger.info(credentials.toString());
+        logger.info(credentials.getRole());
+        if(!"ADMIN".equalsIgnoreCase(credentials.getRole()) && !"COACH".equalsIgnoreCase(credentials.getRole())){
+            throw new AuthorizationException("You do not have permission to access");
+        }
+
+
 
         List<CoachingRequest> coachingRequests = coachingRequestService.getCoachingRequestsByCoachId(coachId);
         List<CoachingRequestResponseDTO> responseDTOList = coachingRequests.stream()
@@ -87,8 +158,25 @@ public class CoachingRequestController {
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<ResponseDTO<Void>> updateCoachingRequestStatus(@PathVariable UUID id, @RequestParam CoachingRequest.Status status) {
+    public ResponseEntity<ResponseDTO<Void>> updateCoachingRequestStatus(@PathVariable UUID id, @RequestParam CoachingRequest.Status status,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         logger.info("Received request to update coaching request status for ID: {} to {}", id, status);
+        if (authorizationHeader == null || authorizationHeader.isEmpty()) {
+            throw new AuthorizationException("Authorization header is missing");
+        }
+
+        String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
+        if(token.isEmpty()){
+            throw new AuthorizationException("Authorization token is missing");
+        }
+
+        JwtPayloadDTO credentials = jwtDecoder.decodeJwt(token);
+        logger.info(credentials.toString());
+        logger.info(credentials.getRole());
+        if(!"COACH".equalsIgnoreCase(credentials.getRole())){
+            throw new AuthorizationException("You do not have permission to access");
+        }
+
+
 
         boolean updated = coachingRequestService.updateCoachingRequestStatus(id, status);
         if (updated) {

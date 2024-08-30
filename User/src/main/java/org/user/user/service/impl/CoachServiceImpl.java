@@ -46,9 +46,6 @@ public class CoachServiceImpl implements CoachService {
     @Override
     public Optional<Coach> updateCoachDetails(UUID id, Coach updatedCoach) {
         return coachRepository.findById(id).map(coach -> {
-            if (updatedCoach.getName() != null) {
-                coach.setName(updatedCoach.getName());
-            }
             if (updatedCoach.getDescription() != null) {
                 coach.setDescription(updatedCoach.getDescription());
             }

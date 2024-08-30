@@ -13,7 +13,6 @@ import java.util.UUID;
 public class AthleteRequestDTO {
     @NotNull(message = "userId is null")
     private UUID userId;
-    private String name;
     private String description;
     private String photoUrl;
 }

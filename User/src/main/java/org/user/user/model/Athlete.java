@@ -24,8 +24,6 @@ public class Athlete {
     private UUID userId;
 
 
-    @NotBlank(message = "Name cannot be empty")
-    private String name;
 
     private String description;
 

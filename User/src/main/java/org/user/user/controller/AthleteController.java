@@ -7,10 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.user.user.commons.utils.JwtDecoder;
 import org.user.user.dto.AthleteRequestDTO;
 import org.user.user.dto.AthleteResponseDTO;
+import org.user.user.dto.JwtPayloadDTO;
 import org.user.user.dto.ResponseDTO;
 import org.user.user.exception.AthleteNotFoundException;
+import org.user.user.exception.AuthorizationException;
 import org.user.user.mapper.AthleteMapper;
 import org.user.user.model.Athlete;
 import org.user.user.service.impl.AthleteServiceImpl;
@@ -26,16 +29,35 @@ public class AthleteController {
     private static final Logger logger = LoggerFactory.getLogger(AthleteController.class);
     private final AthleteServiceImpl athleteService;
     private final AthleteMapper athleteMapper;
+    private final JwtDecoder jwtDecoder;
 
     @Autowired
-    public AthleteController(AthleteServiceImpl athleteService, AthleteMapper athleteMapper) {
+    public AthleteController(AthleteServiceImpl athleteService, AthleteMapper athleteMapper, JwtDecoder jwtDecoder) {
         this.athleteService = athleteService;
         this.athleteMapper = athleteMapper;
+        this.jwtDecoder = jwtDecoder;
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDTO<AthleteResponseDTO>> createAthlete(@Valid @RequestBody AthleteRequestDTO athleteRequest) {
+    public ResponseEntity<ResponseDTO<AthleteResponseDTO>> createAthlete(@RequestBody AthleteRequestDTO athleteRequest ,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         logger.info("Received request to create athlete: {}", athleteRequest);
+        if (authorizationHeader == null || authorizationHeader.isEmpty()) {
+            throw new AuthorizationException("Authorization header is missing");
+        }
+
+        String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
+        if(token.isEmpty()){
+            throw new AuthorizationException("Authorization token is missing");
+        }
+
+        JwtPayloadDTO credentials = jwtDecoder.decodeJwt(token);
+        logger.info(credentials.toString());
+        logger.info(credentials.getRole());
+        if(!"ATHLETE".equalsIgnoreCase(credentials.getRole())){
+            throw new AuthorizationException("You do not have permission to access");
+        }
+
+        athleteRequest.setUserId(UUID.fromString(credentials.getUserId()));
         Athlete athlete = athleteMapper.athleteRequestDtoToAthlete(athleteRequest);
         Athlete createdAthlete = athleteService.createAthlete(athlete);
         AthleteResponseDTO createdAthleteDTO = athleteMapper.athleteToAthleteResponseDTO(createdAthlete);
@@ -71,8 +93,25 @@ public class AthleteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseDTO<AthleteResponseDTO>> updateAthlete(@PathVariable UUID id, @Valid @RequestBody AthleteRequestDTO athleteRequestDTO) {
+    public ResponseEntity<ResponseDTO<AthleteResponseDTO>> updateAthlete(@PathVariable UUID id,  @RequestBody AthleteRequestDTO athleteRequestDTO,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         logger.info("Received request to update athlete with id: {}", id);
+        if (authorizationHeader == null || authorizationHeader.isEmpty()) {
+            throw new AuthorizationException("Authorization header is missing");
+        }
+
+        String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
+        if(token.isEmpty()){
+            throw new AuthorizationException("Authorization token is missing");
+        }
+
+        JwtPayloadDTO credentials = jwtDecoder.decodeJwt(token);
+        logger.info(credentials.toString());
+        logger.info(credentials.getRole());
+        if(!"ADMIN".equalsIgnoreCase(credentials.getRole())){
+            throw new AuthorizationException("You do not have permission to access");
+        }
+
+        athleteRequestDTO.setUserId(UUID.fromString(credentials.getUserId()));
         Athlete updatedAthlete = athleteService.updateAthlete(id, athleteMapper.athleteRequestDtoToAthlete(athleteRequestDTO));
         if (updatedAthlete == null) {
             logger.warn("Athlete not found with id: {}", id);
