@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface CoachingRelationshipRepository extends JpaRepository<CoachingRelationship, UUID> {
-    Optional<List<CoachingRelationship>> findByCoachId(UUID coachId);
-    Optional<CoachingRelationship> findByAthleteId(UUID athleteId);
+public interface CoachingRelationshipRepository extends JpaRepository<CoachingRelationship, String> {
+    Optional<List<CoachingRelationship>> findByCoachId(String coachId);
+    Optional<CoachingRelationship> findByAthleteId(String athleteId);
 }

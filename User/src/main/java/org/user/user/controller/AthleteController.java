@@ -19,7 +19,6 @@ import org.user.user.model.Athlete;
 import org.user.user.service.impl.AthleteServiceImpl;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -57,7 +56,7 @@ public class AthleteController {
             throw new AuthorizationException("You do not have permission to access");
         }
 
-        athleteRequest.setUserId(UUID.fromString(credentials.getUserId()));
+        athleteRequest.setUserId(credentials.getUserId());
         Athlete athlete = athleteMapper.athleteRequestDtoToAthlete(athleteRequest);
         Athlete createdAthlete = athleteService.createAthlete(athlete);
         AthleteResponseDTO createdAthleteDTO = athleteMapper.athleteToAthleteResponseDTO(createdAthlete);
@@ -79,7 +78,7 @@ public class AthleteController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseDTO<AthleteResponseDTO>> getAthleteById(@PathVariable UUID id) {
+    public ResponseEntity<ResponseDTO<AthleteResponseDTO>> getAthleteById(@PathVariable String id) {
         logger.info("Received request to get athlete by id: {}", id);
         Athlete athlete = athleteService.getAthleteById(id)
                 .orElseThrow(() -> {
@@ -93,7 +92,7 @@ public class AthleteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseDTO<AthleteResponseDTO>> updateAthlete(@PathVariable UUID id,  @RequestBody AthleteRequestDTO athleteRequestDTO,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+    public ResponseEntity<ResponseDTO<AthleteResponseDTO>> updateAthlete(@PathVariable String id,  @RequestBody AthleteRequestDTO athleteRequestDTO,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         logger.info("Received request to update athlete with id: {}", id);
         if (authorizationHeader == null || authorizationHeader.isEmpty()) {
             throw new AuthorizationException("Authorization header is missing");
@@ -111,7 +110,7 @@ public class AthleteController {
             throw new AuthorizationException("You do not have permission to access");
         }
 
-        athleteRequestDTO.setUserId(UUID.fromString(credentials.getUserId()));
+        athleteRequestDTO.setUserId(credentials.getUserId());
         Athlete updatedAthlete = athleteService.updateAthlete(id, athleteMapper.athleteRequestDtoToAthlete(athleteRequestDTO));
         if (updatedAthlete == null) {
             logger.warn("Athlete not found with id: {}", id);

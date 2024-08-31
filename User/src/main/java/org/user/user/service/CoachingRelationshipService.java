@@ -9,12 +9,12 @@ import java.util.UUID;
 public interface CoachingRelationshipService {
     CoachingRelationship createCoachingRelationship(CoachingRelationship coachingRelationship);
 
-    Optional<CoachingRelationship> getCoachingRelationshipById(UUID id);
+    Optional<CoachingRelationship> getCoachingRelationshipById(String id);
 
     List<CoachingRelationship> getAllCoachingRelationships();
 
-    Optional<List<CoachingRelationship>> getCoachingRelationshipsByCoachId(UUID coachId);
+    Optional<List<CoachingRelationship>> getCoachingRelationshipsByCoachId(String coachId);
 
-    Optional<CoachingRelationship> getCoachingRelationshipByAthleteId(UUID athleteId);
+    Optional<CoachingRelationship> getCoachingRelationshipByAthleteId(String athleteId);
 
 }

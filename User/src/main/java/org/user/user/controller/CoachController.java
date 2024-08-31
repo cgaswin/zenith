@@ -19,7 +19,7 @@ import org.user.user.service.impl.CoachServiceImpl;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping("/api/v1/coach")
@@ -56,7 +56,7 @@ public class CoachController {
             throw new AuthorizationException("You do not have permission to access");
         }
 
-        coachRequestDTO.setUserId(UUID.fromString(credentials.getUserId()));
+        coachRequestDTO.setUserId(credentials.getUserId());
         Coach coach = coachMapper.coachRequestDtoToCoach(coachRequestDTO);
         logger.info("coach = {}",coach);
         Coach createdCoach = coachService.createCoach(coach);
@@ -67,7 +67,7 @@ public class CoachController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseDTO<CoachResponseDTO>> getCoachById(@PathVariable UUID id) {
+    public ResponseEntity<ResponseDTO<CoachResponseDTO>> getCoachById(@PathVariable String id) {
         logger.info("Received request to get coach with id: {}", id);
         Optional<Coach> coachOptional = coachService.getCoachById(id);
         if (coachOptional.isEmpty()) {
@@ -82,7 +82,7 @@ public class CoachController {
 
     @PutMapping("/{id}/accepting-requests")
     public ResponseEntity<ResponseDTO<CoachResponseDTO>> updateAcceptingRequests(
-            @PathVariable UUID id,
+            @PathVariable String id,
             @RequestParam boolean acceptingRequests,
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader
     ) {
@@ -115,7 +115,7 @@ public class CoachController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ResponseDTO<CoachResponseDTO>> updateCoachDetails(
-            @PathVariable UUID id,
+            @PathVariable String id,
             @Valid @RequestBody CoachRequestDTO coachRequestDTO,
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader
     ) {
@@ -136,7 +136,7 @@ public class CoachController {
             throw new AuthorizationException("You do not have permission to access");
         }
 
-        coachRequestDTO.setUserId(UUID.fromString(credentials.getUserId()));
+        coachRequestDTO.setUserId(credentials.getUserId());
         Coach coach = coachMapper.coachRequestDtoToCoach(coachRequestDTO);
         Optional<Coach> updatedCoachOptional = coachService.updateCoachDetails(id, coach);
         if (updatedCoachOptional.isEmpty()) {

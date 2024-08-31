@@ -10,7 +10,12 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AthleteResponseDTO {
-    private UUID id;
+    private String id;
+    private String name;
+    private String gender;
+    private String height;
+    private String weight;
+    private String category;
     private String description;
     private String photoUrl;
 }

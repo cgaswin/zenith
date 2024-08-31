@@ -7,5 +7,5 @@ import org.user.user.model.Coach;
 import java.util.UUID;
 
 @Repository
-public interface CoachRepository extends JpaRepository<Coach, UUID> {
+public interface CoachRepository extends JpaRepository<Coach, String> {
 }

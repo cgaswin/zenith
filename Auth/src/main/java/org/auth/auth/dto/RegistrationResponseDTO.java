@@ -11,7 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegistrationResponseDTO {
-    private UUID userId;
+    private String userId;
     private String name;
     private String username;
     private String email;

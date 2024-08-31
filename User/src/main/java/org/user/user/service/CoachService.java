@@ -5,13 +5,13 @@ import org.user.user.model.Coach;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 public interface CoachService {
     Coach createCoach(Coach coach);
-    Optional<Coach> getCoachById(UUID id);
+    Optional<Coach> getCoachById(String id);
     List<Coach> getAllCoaches();
-    Optional<Coach> updateAcceptingRequests(UUID id, boolean acceptingRequests);
-    Optional<Coach> updateCoachDetails(UUID id, Coach coach);
+    Optional<Coach> updateAcceptingRequests(String id, boolean acceptingRequests);
+    Optional<Coach> updateCoachDetails(String id, Coach coach);
 
 }

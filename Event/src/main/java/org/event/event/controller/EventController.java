@@ -2,6 +2,7 @@ package org.event.event.controller;
 
 import jakarta.validation.Valid;
 import org.event.event.commons.utils.JwtDecoder;
+import org.event.event.dto.EventRequestDTO;
 import org.event.event.dto.EventResponseDTO;
 import org.event.event.dto.JwtPayloadDTO;
 import org.event.event.exceptions.AuthorizationException;
@@ -10,6 +11,7 @@ import org.event.event.dto.ResponseDTO;
 import org.event.event.mappers.EventMapper;
 import org.event.event.model.Event;
 import org.event.event.service.impl.EventServiceImpl;
+import org.event.event.service.impl.S3FileUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -28,16 +31,19 @@ public class EventController {
     private final EventServiceImpl eventService;
     private final EventMapper eventMapper;
     private final JwtDecoder jwtDecoder;
+    private final S3FileUpload s3FileUpload;
+
 
     @Autowired
-    public EventController(EventServiceImpl eventService, EventMapper eventMapper, JwtDecoder jwtDecoder) {
+    public EventController(EventServiceImpl eventService, EventMapper eventMapper, JwtDecoder jwtDecoder, S3FileUpload s3FileUpload) {
         this.eventService = eventService;
         this.eventMapper = eventMapper;
         this.jwtDecoder = jwtDecoder;
+        this.s3FileUpload = s3FileUpload;
     }
 
-    @PostMapping
-    public ResponseEntity<ResponseDTO<EventResponseDTO>> createEvent(@RequestBody Event event,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+    @PostMapping(consumes = {"multipart/form-data"})
+    public ResponseEntity<ResponseDTO<EventResponseDTO>> createEvent(@ModelAttribute EventRequestDTO event, @RequestHeader(value = "Authorization", required = false) String authorizationHeader) throws IOException {
         logger.info("Received request to create event: {}", event);
         if (authorizationHeader == null || authorizationHeader.isEmpty()) {
             throw new AuthorizationException("Authorization header is missing");
@@ -55,9 +61,13 @@ public class EventController {
             throw new AuthorizationException("You do not have permission to access");
         }
 
-        event.setCreatedBy(UUID.fromString(credentials.getUserId()));
+        String photoUrl = s3FileUpload.uploadFile(event.getImage());
+        event.getEvent().setPhotoUrl(photoUrl);
+
+
+        event.getEvent().setCreatedBy(UUID.fromString(credentials.getUserId()));
         logger.info("event {}",event);
-        Event createdEvent = eventService.createEvent(event);
+        Event createdEvent = eventService.createEvent(event.getEvent());
         EventResponseDTO createdEventDTO = eventMapper.eventToEventResponseDTO(createdEvent);
         logger.info("Event created successfully: {}", createdEventDTO);
         ResponseDTO<EventResponseDTO> response = new ResponseDTO<>("Event created successfully", true, createdEventDTO);

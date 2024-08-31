@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface CoachingRequestRepository extends JpaRepository<CoachingRequest, UUID> {
-    List<CoachingRequest> findByAthleteId(UUID athleteId);
+public interface CoachingRequestRepository extends JpaRepository<CoachingRequest, String> {
+    List<CoachingRequest> findByAthleteId(String athleteId);
 
-    List<CoachingRequest> findByCoachId(UUID coachId);
+    List<CoachingRequest> findByCoachId(String coachId);
 }

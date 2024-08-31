@@ -10,7 +10,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface CoachMapper {
-    @Mapping(source = "userId", target = "user_id")
+    @Mapping(source = "userId", target = "userId")
     Coach coachRequestDtoToCoach(CoachRequestDTO coachRequestDTO);
     CoachResponseDTO coachToCoachResponseDto(Coach coach);
     List<CoachResponseDTO> coachesToCoachResponseDto(List<Coach> coaches);

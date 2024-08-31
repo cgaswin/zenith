@@ -26,7 +26,7 @@ public class CoachingRelationshipServiceImpl implements CoachingRelationshipServ
     }
 
     @Override
-    public Optional<CoachingRelationship> getCoachingRelationshipById(UUID id) {
+    public Optional<CoachingRelationship> getCoachingRelationshipById(String id) {
         return coachingRelationshipRepository.findById(id);
     }
 
@@ -36,12 +36,12 @@ public class CoachingRelationshipServiceImpl implements CoachingRelationshipServ
     }
 
     @Override
-    public Optional<List<CoachingRelationship>> getCoachingRelationshipsByCoachId(UUID coachId) {
+    public Optional<List<CoachingRelationship>> getCoachingRelationshipsByCoachId(String coachId) {
         return coachingRelationshipRepository.findByCoachId(coachId);
     }
 
     @Override
-    public Optional<CoachingRelationship> getCoachingRelationshipByAthleteId(UUID athleteId) {
+    public Optional<CoachingRelationship> getCoachingRelationshipByAthleteId(String athleteId) {
         return coachingRelationshipRepository.findByAthleteId(athleteId);
     }
 }

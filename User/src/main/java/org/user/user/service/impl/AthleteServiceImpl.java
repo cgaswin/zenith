@@ -26,13 +26,31 @@ public class AthleteServiceImpl implements AthleteService {
     }
 
     @Override
-    public Optional<Athlete> getAthleteById(UUID id) {
+    public Optional<Athlete> getAthleteById(String id) {
         return athleteRepository.findById(id);
     }
 
     @Override
-    public Athlete updateAthlete(UUID id, Athlete athlete) {
+    public Athlete updateAthlete(String id, Athlete athlete) {
         return athleteRepository.findById(id).map(existingAthlete -> {
+            if (athlete.getName() != null) {
+                existingAthlete.setName(athlete.getName());
+            }
+            if (athlete.getDob() != null) {
+                existingAthlete.setDob(athlete.getDob());
+            }
+            if (athlete.getGender() != null) {
+                existingAthlete.setGender(athlete.getGender());
+            }
+            if (athlete.getHeight() != null) {
+                existingAthlete.setHeight(athlete.getHeight());
+            }
+            if (athlete.getWeight() != null) {
+                existingAthlete.setWeight(athlete.getWeight());
+            }
+            if (athlete.getCategory() != null) {
+                existingAthlete.setCategory(athlete.getCategory());
+            }
             if (athlete.getDescription() != null) {
                 existingAthlete.setDescription(athlete.getDescription());
             }

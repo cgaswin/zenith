@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,8 +13,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CoachRequestDTO {
-    @NotNull(message = "userId is null")
-    private UUID userId;
+    private String userId;
+    private String name;
+    private String gender;
+    private Date dob;
+    private String category;
     private String description;
     private String photoUrl;
     private List<String> achievements;

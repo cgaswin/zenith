@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface AthleteService {
     Athlete createAthlete(Athlete athlete);
-    Optional<Athlete> getAthleteById(UUID id);
-    Athlete updateAthlete(UUID id, Athlete athlete);
+    Optional<Athlete> getAthleteById(String id);
+    Athlete updateAthlete(String id, Athlete athlete);
     List<Athlete> getAllAthletes();
 }

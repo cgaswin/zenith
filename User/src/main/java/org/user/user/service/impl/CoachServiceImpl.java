@@ -26,7 +26,7 @@ public class CoachServiceImpl implements CoachService {
     }
 
     @Override
-    public Optional<Coach> getCoachById(UUID id) {
+    public Optional<Coach> getCoachById(String id) {
         return coachRepository.findById(id);
     }
 
@@ -36,7 +36,7 @@ public class CoachServiceImpl implements CoachService {
     }
 
     @Override
-    public Optional<Coach> updateAcceptingRequests(UUID id, boolean acceptingRequests) {
+    public Optional<Coach> updateAcceptingRequests(String id, boolean acceptingRequests) {
         return coachRepository.findById(id).map(coach -> {
             coach.setAcceptingRequests(acceptingRequests); // Ensure you have a setter for this field
             return coachRepository.save(coach);
@@ -44,14 +44,27 @@ public class CoachServiceImpl implements CoachService {
     }
 
     @Override
-    public Optional<Coach> updateCoachDetails(UUID id, Coach updatedCoach) {
+    public Optional<Coach> updateCoachDetails(String id, Coach updatedCoach) {
         return coachRepository.findById(id).map(coach -> {
+            if (updatedCoach.getName() != null) {
+                coach.setName(updatedCoach.getName());
+            }
+            if (updatedCoach.getGender() != null) {
+                coach.setGender(updatedCoach.getGender());
+            }
+            if (updatedCoach.getDob() != null) {
+                coach.setDob(updatedCoach.getDob());
+            }
+            if (updatedCoach.getCategory() != null) {
+                coach.setCategory(updatedCoach.getCategory());
+            }
             if (updatedCoach.getDescription() != null) {
                 coach.setDescription(updatedCoach.getDescription());
             }
             if (updatedCoach.getPhotoUrl() != null) {
                 coach.setPhotoUrl(updatedCoach.getPhotoUrl());
             }
+            coach.setAcceptingRequests(updatedCoach.isAcceptingRequests());
             if (updatedCoach.getAchievements() != null) {
                 coach.setAchievements(updatedCoach.getAchievements());
             }

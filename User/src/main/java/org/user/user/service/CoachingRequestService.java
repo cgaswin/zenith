@@ -8,11 +8,11 @@ import java.util.UUID;
 
 public interface CoachingRequestService {
     CoachingRequest createCoachingRequest(CoachingRequest coachingRequest);
-    Optional<CoachingRequest> getCoachingRequestById(UUID id);
+    Optional<CoachingRequest> getCoachingRequestById(String id);
     List<CoachingRequest> getAllCoachingRequests();
-    List<CoachingRequest> getCoachingRequestsByAthleteId(UUID athleteId);
-    List<CoachingRequest> getCoachingRequestsByCoachId(UUID coachId);
-    void deleteCoachingRequestsByAthleteId(UUID athleteId);
-    boolean updateCoachingRequestStatus(UUID id, CoachingRequest.Status status);
-    void createCoachingRelationshipForApprovedRequest(UUID coachingRequestId);
+    List<CoachingRequest> getCoachingRequestsByAthleteId(String athleteId);
+    List<CoachingRequest> getCoachingRequestsByCoachId(String coachId);
+    void deleteCoachingRequestsByAthleteId(String athleteId);
+    boolean updateCoachingRequestStatus(String id, CoachingRequest.Status status);
+    void createCoachingRelationshipForApprovedRequest(String coachingRequestId);
 }

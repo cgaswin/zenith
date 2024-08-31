@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,7 +12,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CoachResponseDTO {
-    private UUID id;
+    private String id;
+    private String name;
+    private String gender;
+    private Date dob;
+    private String category;
     private String description;
     private String photoUrl;
     private List<String> achievements;

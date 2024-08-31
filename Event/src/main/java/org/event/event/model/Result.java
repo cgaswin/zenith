@@ -5,7 +5,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.event.event.commons.utils.StringPrefixedSequenceIdGenerator;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -17,7 +20,14 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Result {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "res_seq")
+    @GenericGenerator(
+            name = "res_seq",
+            strategy = "org.event.event.commons.utils.StringPrefixedSequenceIdGenerator",
+            parameters = {
+                    @Parameter(name = StringPrefixedSequenceIdGenerator.INCREMENT_PARAM, value = "50"),
+                    @Parameter(name = StringPrefixedSequenceIdGenerator.VALUE_PREFIX_PARAMETER, value = "res_"),
+                    @Parameter(name = StringPrefixedSequenceIdGenerator.NUMBER_FORMAT_PARAMETER, value = "%05d") })
     private UUID id;
 
     @ManyToOne

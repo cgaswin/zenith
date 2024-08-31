@@ -10,6 +10,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CoachingRelationshipRequestDTO {
-    private UUID athleteId;
-    private UUID coachId;
+    private String athleteId;
+    private String coachId;
 }

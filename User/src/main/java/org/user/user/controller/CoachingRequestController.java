@@ -17,7 +17,6 @@ import org.user.user.model.CoachingRequest;
 import org.user.user.service.impl.CoachingRequestServiceImpl;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -65,7 +64,7 @@ public class CoachingRequestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseDTO<CoachingRequestResponseDTO>> getCoachingRequestById(@PathVariable UUID id,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+    public ResponseEntity<ResponseDTO<CoachingRequestResponseDTO>> getCoachingRequestById(@PathVariable String id,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         logger.info("Received request to get coaching request with ID: {}", id);
         if (authorizationHeader == null || authorizationHeader.isEmpty()) {
             throw new AuthorizationException("Authorization header is missing");
@@ -96,7 +95,7 @@ public class CoachingRequestController {
     }
 
     @GetMapping("/athlete/{athleteId}")
-    public ResponseEntity<ResponseDTO<List<CoachingRequestResponseDTO>>> getCoachingRequestsByAthleteId(@PathVariable UUID athleteId,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+    public ResponseEntity<ResponseDTO<List<CoachingRequestResponseDTO>>> getCoachingRequestsByAthleteId(@PathVariable String athleteId,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         logger.info("Received request to get coaching requests for athlete with ID: {}", athleteId);
         if (authorizationHeader == null || authorizationHeader.isEmpty()) {
             throw new AuthorizationException("Authorization header is missing");
@@ -127,7 +126,7 @@ public class CoachingRequestController {
     }
 
     @GetMapping("/coach/{coachId}")
-    public ResponseEntity<ResponseDTO<List<CoachingRequestResponseDTO>>> getCoachingRequestsByCoachId(@PathVariable UUID coachId,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+    public ResponseEntity<ResponseDTO<List<CoachingRequestResponseDTO>>> getCoachingRequestsByCoachId(@PathVariable String coachId,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         logger.info("Received request to get coaching requests for coach with ID: {}", coachId);
         if (authorizationHeader == null || authorizationHeader.isEmpty()) {
             throw new AuthorizationException("Authorization header is missing");
@@ -158,7 +157,7 @@ public class CoachingRequestController {
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<ResponseDTO<Void>> updateCoachingRequestStatus(@PathVariable UUID id, @RequestParam CoachingRequest.Status status,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+    public ResponseEntity<ResponseDTO<Void>> updateCoachingRequestStatus(@PathVariable String id, @RequestParam CoachingRequest.Status status,@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         logger.info("Received request to update coaching request status for ID: {} to {}", id, status);
         if (authorizationHeader == null || authorizationHeader.isEmpty()) {
             throw new AuthorizationException("Authorization header is missing");
@@ -193,7 +192,7 @@ public class CoachingRequestController {
     }
 
     @DeleteMapping("/athlete/{athleteId}")
-    public ResponseEntity<ResponseDTO<Void>> deleteCoachingRequestsByAthleteId(@PathVariable UUID athleteId) {
+    public ResponseEntity<ResponseDTO<Void>> deleteCoachingRequestsByAthleteId(@PathVariable String athleteId) {
         logger.info("Received request to delete coaching requests for athlete with ID: {}", athleteId);
 
         coachingRequestService.deleteCoachingRequestsByAthleteId(athleteId);

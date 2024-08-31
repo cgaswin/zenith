@@ -12,7 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CoachingRelationshipResponseDTO {
-    private UUID id;
+    private String id;
     private Athlete athlete;
     private Coach coach;
 }

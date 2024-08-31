@@ -39,6 +39,12 @@ public class GlobalExceptionHandler {
         return createErrorResponse(HttpStatus.UNAUTHORIZED, "Invalid credentials", ex.getMessage(), request, null);
     }
 
+    @ExceptionHandler(S3UploadException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponseDTO handleS3UploadException(S3UploadException ex, WebRequest request){
+        return createErrorResponse(HttpStatus.UNAUTHORIZED, "Error uploading to s3", ex.getMessage(), request, null);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponseDTO handleValidationExceptions(MethodArgumentNotValidException ex, WebRequest request) {

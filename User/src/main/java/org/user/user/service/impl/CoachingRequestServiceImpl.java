@@ -39,9 +39,9 @@ public class CoachingRequestServiceImpl implements CoachingRequestService {
 
     @Override
     public CoachingRequest createCoachingRequest(CoachingRequest coachingRequest) {
-        Athlete athlete = athleteRepository.findById(coachingRequest.getAthlete().getId())
+        Athlete athlete = athleteRepository.findById(coachingRequest.getAthlete().getUserId())
                 .orElseThrow(() -> new AthleteNotFoundException("Athlete not found"));
-        Coach coach = coachRepository.findById(coachingRequest.getCoach().getId())
+        Coach coach = coachRepository.findById(coachingRequest.getCoach().getUserId())
                 .orElseThrow(() -> new CoachNotFoundException("Coach not found"));
         Optional<CoachingRelationship> relationship = coachingRelationshipRepository.findByAthleteId(coachingRequest.getAthlete().getId());
         if(!coach.isAcceptingRequests()){
@@ -59,7 +59,7 @@ public class CoachingRequestServiceImpl implements CoachingRequestService {
     }
 
     @Override
-    public Optional<CoachingRequest> getCoachingRequestById(UUID id) {
+    public Optional<CoachingRequest> getCoachingRequestById(String id) {
         return coachingRequestRepository.findById(id);
     }
 
@@ -69,24 +69,24 @@ public class CoachingRequestServiceImpl implements CoachingRequestService {
     }
 
     @Override
-    public List<CoachingRequest> getCoachingRequestsByAthleteId(UUID athleteId) {
+    public List<CoachingRequest> getCoachingRequestsByAthleteId(String athleteId) {
         return  coachingRequestRepository.findByAthleteId(athleteId);
     }
 
     @Override
-    public List<CoachingRequest> getCoachingRequestsByCoachId(UUID coachId) {
+    public List<CoachingRequest> getCoachingRequestsByCoachId(String coachId) {
         return coachingRequestRepository.findByCoachId(coachId);
     }
 
     @Override
-    public void deleteCoachingRequestsByAthleteId(UUID athleteId) {
+    public void deleteCoachingRequestsByAthleteId(String athleteId) {
         List<CoachingRequest> requests = coachingRequestRepository.findByAthleteId(athleteId);
         coachingRequestRepository.deleteAll(requests);
     }
 
     @Override
     @Transactional
-    public boolean updateCoachingRequestStatus(UUID id, CoachingRequest.Status status) {
+    public boolean updateCoachingRequestStatus(String id, CoachingRequest.Status status) {
         Optional<CoachingRequest> coachingRequestOpt = coachingRequestRepository.findById(id);
         if (coachingRequestOpt.isPresent()) {
             CoachingRequest coachingRequest = coachingRequestOpt.get();
@@ -99,7 +99,7 @@ public class CoachingRequestServiceImpl implements CoachingRequestService {
 
     @Override
     @Transactional
-    public void createCoachingRelationshipForApprovedRequest(UUID coachingRequestId) {
+    public void createCoachingRelationshipForApprovedRequest(String coachingRequestId) {
         Optional<CoachingRequest> coachingRequestOpt = coachingRequestRepository.findById(coachingRequestId);
         if (coachingRequestOpt.isPresent()) {
             CoachingRequest coachingRequest = coachingRequestOpt.get();

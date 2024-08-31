@@ -1,13 +1,15 @@
 package org.user.user.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
+import org.user.user.commons.utils.StringPrefixedSequenceIdGenerator;
 
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -17,16 +19,25 @@ import java.util.UUID;
 public class Athlete {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "res_seq")
+    @GenericGenerator(
+            name = "res_seq",
+            strategy = "org.user.user.commons.utils.StringPrefixedSequenceIdGenerator",
+            parameters = {
+                    @Parameter(name = StringPrefixedSequenceIdGenerator.INCREMENT_PARAM, value = "50"),
+                    @Parameter(name = StringPrefixedSequenceIdGenerator.VALUE_PREFIX_PARAMETER, value = "at_"),
+                    @Parameter(name = StringPrefixedSequenceIdGenerator.NUMBER_FORMAT_PARAMETER, value = "%05d") })
+    private String id;
 
     @NotNull(message = "User cannot be empty")
-    private UUID userId;
-
-
-
+    private String userId;
+    private String name;
+    private Date dob;
+    private String gender;
+    private String height;
+    private String weight;
+    private String category;
     private String description;
-
     private String photoUrl;
 
 }
