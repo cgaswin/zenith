@@ -12,6 +12,7 @@ import java.util.UUID;
 public class AthleteResponseDTO {
     private String id;
     private String name;
+    private String dob;
     private String gender;
     private String height;
     private String weight;

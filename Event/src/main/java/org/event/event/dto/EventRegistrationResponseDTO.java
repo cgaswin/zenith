@@ -11,10 +11,10 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EventRegistrationResponseDTO {
-    private UUID id;
-    private UUID eventId;
-    private UUID eventItemId;
-    private UUID athleteId;
+    private String id;
+    private String eventId;
+    private String eventItemId;
+    private String athleteId;
     private Status status;
     private LocalDateTime registrationDate;
 

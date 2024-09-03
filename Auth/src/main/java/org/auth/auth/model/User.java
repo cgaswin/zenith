@@ -58,6 +58,9 @@ public class User implements UserDetails {
     @Enumerated(value = EnumType.STRING)
     private Role role=Role.ATHLETE;
 
+    @Column(name = "role_id", nullable = true)
+    private String roleId;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

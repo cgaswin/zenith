@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class EventItemServiceImpl implements EventItemService {
@@ -29,12 +28,12 @@ public class EventItemServiceImpl implements EventItemService {
     }
 
     @Override
-    public Optional<EventItem> getEventItemById(UUID id) {
+    public Optional<EventItem> getEventItemById(String id) {
         return eventItemRepository.findById(id);
     }
 
     @Override
-    public Optional<List<EventItem>> getEventItemsByEventId(UUID eventId) {
+    public Optional<List<EventItem>> getEventItemsByEventId(String eventId) {
        return eventItemRepository.findByEventId(eventId);
     }
 

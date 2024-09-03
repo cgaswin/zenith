@@ -7,10 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.user.user.commons.utils.JwtDecoder;
-import org.user.user.dto.CoachRequestDTO;
-import org.user.user.dto.CoachResponseDTO;
-import org.user.user.dto.JwtPayloadDTO;
-import org.user.user.dto.ResponseDTO;
+import org.user.user.dto.*;
 import org.user.user.exception.AuthorizationException;
 import org.user.user.exception.CoachNotFoundException;
 import org.user.user.mapper.CoachMapper;
@@ -52,7 +49,7 @@ public class CoachController {
         JwtPayloadDTO credentials = jwtDecoder.decodeJwt(token);
         logger.info(credentials.toString());
         logger.info(credentials.getRole());
-        if(!"COACH".equalsIgnoreCase(credentials.getRole())){
+        if("ATHLETE".equalsIgnoreCase(credentials.getRole())){
             throw new AuthorizationException("You do not have permission to access");
         }
 
@@ -99,7 +96,8 @@ public class CoachController {
         JwtPayloadDTO credentials = jwtDecoder.decodeJwt(token);
         logger.info(credentials.toString());
         logger.info(credentials.getRole());
-        if(!"COACH".equalsIgnoreCase(credentials.getRole())){
+        if("ATHLETE".equalsIgnoreCase(credentials.getRole())){
+            logger.info("the role is of athlete");
             throw new AuthorizationException("You do not have permission to access");
         }
         Optional<Coach> updatedCoachOptional = coachService.updateAcceptingRequests(id, acceptingRequests);
@@ -132,7 +130,7 @@ public class CoachController {
         JwtPayloadDTO credentials = jwtDecoder.decodeJwt(token);
         logger.info(credentials.toString());
         logger.info(credentials.getRole());
-        if(!"ADMIN".equalsIgnoreCase(credentials.getRole())){
+        if("ATHLETE".equalsIgnoreCase(credentials.getRole())){
             throw new AuthorizationException("You do not have permission to access");
         }
 
@@ -156,6 +154,14 @@ public class CoachController {
         List<CoachResponseDTO> coachResponseDTOs = coachMapper.coachesToCoachResponseDto(coaches);
         logger.info("Retrieved coaches successfully, total elements: {}", coaches.size());
         ResponseDTO<List<CoachResponseDTO>> response = new ResponseDTO<>("Coaches retrieved successfully", true, coachResponseDTOs);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<ResponseDTO<StatDTO>> getCoachStats() {
+        logger.info("Received request to get coach statistics");
+        StatDTO stats = coachService.getStats();
+        ResponseDTO<StatDTO> response = new ResponseDTO<>("Coach statistics retrieved successfully", true, stats);
         return ResponseEntity.ok(response);
     }
 }

@@ -16,7 +16,7 @@ public class CoachRequestDTO {
     private String userId;
     private String name;
     private String gender;
-    private Date dob;
+    private String dob;
     private String category;
     private String description;
     private String photoUrl;

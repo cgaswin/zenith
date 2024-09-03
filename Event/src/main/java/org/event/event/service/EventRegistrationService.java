@@ -12,11 +12,17 @@ public interface EventRegistrationService {
 
     List<EventRegistration> getAllEventRegistrations();
 
-    Optional<EventRegistration> getEventRegistrationById(UUID id);
+    Optional<EventRegistration> getEventRegistrationById(String id);
 
-    Optional<List<EventRegistration>> getRegistrationsByEventId(UUID eventId);
+    Optional<List<EventRegistration>> getRegistrationsByEventId(String eventId);
 
-    Optional<List<EventRegistration>> getRegistrationsByEventItemId(UUID eventItemId);
+    Optional<List<EventRegistration>> getRegistrationsByEventItemId(String eventItemId);
 
-    Optional<EventRegistration> updateRegistrationStatus(UUID registrationId, EventRegistration.Status status);
+    Optional<List<EventRegistration>> getRegistrationsByAthleteId(String athleteId);
+
+    boolean isAthleteRegisteredForEventItem(String athleteId, String eventItemId);
+
+    Optional<List<EventRegistration>> getRegistrationsByEventAndAthlete(String eventId, String athleteId);
+
+    List<EventRegistration> getPendingRegistrations();
 }

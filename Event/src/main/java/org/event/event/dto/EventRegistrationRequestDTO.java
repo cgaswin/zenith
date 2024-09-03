@@ -10,7 +10,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventRegistrationRequestDTO {
-    private UUID eventId;
-    private UUID eventItemId;
-    private UUID athleteId;
+    private String eventId;
+    private String eventItemId;
+    private String athleteId;
 }

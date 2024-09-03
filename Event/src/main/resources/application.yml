@@ -3,6 +3,9 @@ server:
 
 
 spring:
+  config:
+    import:
+      - aws.yml
   application:
     name: event-service
   datasource:

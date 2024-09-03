@@ -30,7 +30,7 @@ public class EventItem {
                     @Parameter(name = StringPrefixedSequenceIdGenerator.VALUE_PREFIX_PARAMETER, value = "item_"),
                     @Parameter(name = StringPrefixedSequenceIdGenerator.NUMBER_FORMAT_PARAMETER, value = "%05d") })
     @Column(nullable = false, unique = true)
-    private UUID id;
+    private String id;
 
     @ManyToOne
     @JoinColumn( nullable = false)
@@ -45,9 +45,8 @@ public class EventItem {
     @Column(nullable = false)
     private String description;
 
-    @NotNull(message = "Creator ID cannot be null")
-    @Column(nullable = false)
-    private UUID createdBy;
+
+    private String createdBy;
 
     @CreationTimestamp
     @Column(updatable = false)

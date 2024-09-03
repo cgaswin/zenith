@@ -1,5 +1,6 @@
 package org.user.user.service;
 
+import org.user.user.dto.CoachingRequestRequestDTO;
 import org.user.user.model.CoachingRequest;
 
 import java.util.List;
@@ -7,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CoachingRequestService {
-    CoachingRequest createCoachingRequest(CoachingRequest coachingRequest);
+    CoachingRequest createCoachingRequest(CoachingRequestRequestDTO coachingRequestRequestDTO);
     Optional<CoachingRequest> getCoachingRequestById(String id);
     List<CoachingRequest> getAllCoachingRequests();
     List<CoachingRequest> getCoachingRequestsByAthleteId(String athleteId);

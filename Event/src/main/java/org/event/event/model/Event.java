@@ -11,9 +11,11 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Parameter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -32,7 +34,7 @@ public class Event {
                     @Parameter(name = StringPrefixedSequenceIdGenerator.VALUE_PREFIX_PARAMETER, value = "evt_"),
                     @Parameter(name = StringPrefixedSequenceIdGenerator.NUMBER_FORMAT_PARAMETER, value = "%05d") })
     @Column(nullable = false, unique = true)
-    private UUID id;
+    private String id;
 
     @NotBlank(message = "Event name cannot be empty")
     private String name;
@@ -40,23 +42,30 @@ public class Event {
     @NotBlank(message = "Event description cannot be empty")
     private String description;
 
-    @NotBlank(message = "Photo URL cannot be empty")
+
     private String photoUrl;
 
     @NotNull(message = "Event date cannot be null")
-    private LocalDateTime date;
+    private String date;
 
     @NotBlank(message = "Event venue cannot be empty")
     private String venue;
 
-    @NotNull(message = "Creator ID cannot be null")
-    private UUID createdBy;
+
+    private String createdBy;
 
     @CreationTimestamp
-    @Column(updatable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 
 }

@@ -14,6 +14,7 @@ public class AthleteRequestDTO {
     private String userId;
     private String name;
     private String gender;
+    private String dob;
     private String height;
     private String weight;
     private String category;

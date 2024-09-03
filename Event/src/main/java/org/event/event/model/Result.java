@@ -28,7 +28,7 @@ public class Result {
                     @Parameter(name = StringPrefixedSequenceIdGenerator.INCREMENT_PARAM, value = "50"),
                     @Parameter(name = StringPrefixedSequenceIdGenerator.VALUE_PREFIX_PARAMETER, value = "res_"),
                     @Parameter(name = StringPrefixedSequenceIdGenerator.NUMBER_FORMAT_PARAMETER, value = "%05d") })
-    private UUID id;
+    private String id;
 
     @ManyToOne
     @JoinColumn(nullable = false)
@@ -42,9 +42,9 @@ public class Result {
 
     @NotNull(message = "Athlete ID cannot be null")
     @Column(nullable = false)
-    private UUID athleteId;
+    private String athleteId;
 
-    @Column(nullable = false, precision = 5, scale = 2)
+    @Column(nullable = false, precision = 10, scale = 2)
     @NotNull(message = "Score cannot be null")
     private BigDecimal score;
 

@@ -1,6 +1,6 @@
 package org.user.user.service;
 
-import org.user.user.model.Athlete;
+import org.user.user.dto.StatDTO;
 import org.user.user.model.Coach;
 
 import java.util.List;
@@ -13,5 +13,6 @@ public interface CoachService {
     List<Coach> getAllCoaches();
     Optional<Coach> updateAcceptingRequests(String id, boolean acceptingRequests);
     Optional<Coach> updateCoachDetails(String id, Coach coach);
+    StatDTO getStats();
 
 }

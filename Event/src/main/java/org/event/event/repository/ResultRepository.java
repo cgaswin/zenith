@@ -10,7 +10,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ResultRepository extends JpaRepository<Result, UUID> {
-    Optional<List<Result>> findByEventId(UUID eventId);
-    Optional<List<Result>> findByEventItemId(UUID eventItemId);
+public interface ResultRepository extends JpaRepository<Result, String> {
+    List<Result> findByEventId(String eventId);
+    List<Result> findByEventItemId(String eventItemId);
+    List<Result> findByAthleteIdOrderByScoreDesc(String athleteId);
+    Optional<Result> findTopByAthleteIdOrderByScoreDesc(String athlete);
 }

@@ -15,6 +15,7 @@ public class AthleteResponseDTO {
     private String gender;
     private String height;
     private String weight;
+    private String dob;
     private String category;
     private String description;
     private String photoUrl;

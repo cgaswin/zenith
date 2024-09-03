@@ -11,7 +11,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class AthleteRequestDTO {
     private String name;
-    private Date dob;
+    private String dob;
     private String gender;
     private String height;
     private String weight;

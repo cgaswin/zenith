@@ -13,6 +13,7 @@ import org.event.event.exceptions.EventNotFoundException;
 import org.event.event.mappers.EventItemMapper;
 import org.event.event.model.Event;
 import org.event.event.model.EventItem;
+import org.event.event.repository.EventItemRepository;
 import org.event.event.service.impl.EventItemServiceImpl;
 import org.event.event.service.impl.EventServiceImpl;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -36,13 +38,15 @@ public class EventItemController {
     private final EventItemMapper eventItemMapper;
     private final EventServiceImpl eventService;
     private final JwtDecoder jwtDecoder;
+    private final EventItemRepository eventItemRepository;
 
     @Autowired
-    public EventItemController(EventItemServiceImpl eventItemService, EventItemMapper eventItemMapper, EventServiceImpl eventService, JwtDecoder jwtDecoder) {
+    public EventItemController(EventItemServiceImpl eventItemService, EventItemMapper eventItemMapper, EventServiceImpl eventService, JwtDecoder jwtDecoder, EventItemRepository eventItemRepository) {
         this.eventItemService = eventItemService;
         this.eventItemMapper = eventItemMapper;
         this.eventService = eventService;
         this.jwtDecoder = jwtDecoder;
+        this.eventItemRepository = eventItemRepository;
     }
 
     @PostMapping
@@ -63,7 +67,7 @@ public class EventItemController {
         if(!"ADMIN".equalsIgnoreCase(credentials.getRole())){
             throw new AuthorizationException("You do not have permission to access");
         }
-        eventItemDTO.setCreatedBy(UUID.fromString(credentials.getUserId()));
+
         Event event = eventService.getEventById(eventItemDTO.getEventId())
                 .orElseThrow(() -> {
                     logger.warn("Event not found with id: {}",eventItemDTO.getEventId());
@@ -74,6 +78,8 @@ public class EventItemController {
         eventItem.setEvent(event);
 
         EventItem createdEventItem = eventItemService.createEventItem(eventItem);
+        createdEventItem.setCreatedBy(credentials.getUserId());
+        eventItemRepository.save(createdEventItem);
         EventItemResponseDTO createdEventItemDTO = eventItemMapper.eventItemToEventItemResponseDTO(createdEventItem);
         logger.info("Event item created successfully: {}", createdEventItemDTO);
         ResponseDTO<EventItemResponseDTO> response = new ResponseDTO<>("Event item created successfully", true, createdEventItemDTO);
@@ -93,7 +99,7 @@ public class EventItemController {
    }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseDTO<EventItemResponseDTO>> getEventItemById(@PathVariable UUID id) {
+    public ResponseEntity<ResponseDTO<EventItemResponseDTO>> getEventItemById(@PathVariable String id) {
         logger.info("Received request to get event item by id: {}", id);
         EventItem eventItem = eventItemService.getEventItemById(id)
                 .orElseThrow(() -> {
@@ -103,6 +109,16 @@ public class EventItemController {
         EventItemResponseDTO eventItemDTO = eventItemMapper.eventItemToEventItemResponseDTO(eventItem);
         logger.info("Retrieved event item: {}", eventItemDTO);
         ResponseDTO<EventItemResponseDTO> response = new ResponseDTO<>("Event item retrieved successfully", true, eventItemDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/event/{eventId}")
+    public ResponseEntity<ResponseDTO<List<EventItemResponseDTO>>> getEventItemsByEventId(@PathVariable String eventId) {
+        List<EventItem> eventItems = eventItemService.getEventItemsByEventId(eventId).get();
+        List<EventItemResponseDTO> eventItemDTOs = eventItems.stream()
+                .map(eventItemMapper::eventItemToEventItemResponseDTO)
+                .collect(Collectors.toList());
+        ResponseDTO<List<EventItemResponseDTO>> response = new ResponseDTO<>("Event items retrieved successfully", true, eventItemDTOs);
         return ResponseEntity.ok(response);
     }
 

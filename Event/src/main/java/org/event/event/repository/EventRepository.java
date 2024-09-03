@@ -10,9 +10,9 @@ import java.time.LocalDate;
 
 
 @Repository
-public interface EventRepository extends JpaRepository<Event, UUID> {
+public interface EventRepository extends JpaRepository<Event, String> {
 
     List<Event> findByVenue(String venue);
     List<Event> findByNameContainingIgnoreCase(String name);
-    List<Event> findByCreatedBy(UUID createdBy);
+    List<Event> findByCreatedBy(String createdBy);
 }

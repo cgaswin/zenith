@@ -11,7 +11,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
+
 
 @Entity
 @Data
@@ -28,7 +28,7 @@ public class EventRegistration {
                     @Parameter(name = StringPrefixedSequenceIdGenerator.VALUE_PREFIX_PARAMETER, value = "reg_"),
                     @Parameter(name = StringPrefixedSequenceIdGenerator.NUMBER_FORMAT_PARAMETER, value = "%05d") })
     @Column(nullable = false, unique = true)
-    private UUID id;
+    private String id;
 
     @ManyToOne
     @JoinColumn(nullable = false)
@@ -42,7 +42,7 @@ public class EventRegistration {
 
     @NotNull(message = "Athlete ID cannot be null")
     @Column(nullable = false)
-    private UUID athleteId;
+    private String athleteId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

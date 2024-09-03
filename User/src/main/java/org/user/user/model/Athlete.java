@@ -5,10 +5,12 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import org.user.user.commons.utils.StringPrefixedSequenceIdGenerator;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -32,12 +34,23 @@ public class Athlete {
     @NotNull(message = "User cannot be empty")
     private String userId;
     private String name;
-    private Date dob;
+    private String dob;
     private String gender;
     private String height;
     private String weight;
     private String category;
     private String description;
     private String photoUrl;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 
 }

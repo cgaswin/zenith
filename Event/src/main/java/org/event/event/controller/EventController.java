@@ -2,14 +2,13 @@ package org.event.event.controller;
 
 import jakarta.validation.Valid;
 import org.event.event.commons.utils.JwtDecoder;
-import org.event.event.dto.EventRequestDTO;
-import org.event.event.dto.EventResponseDTO;
-import org.event.event.dto.JwtPayloadDTO;
+import org.event.event.dto.*;
 import org.event.event.exceptions.AuthorizationException;
 import org.event.event.exceptions.EventNotFoundException;
-import org.event.event.dto.ResponseDTO;
 import org.event.event.mappers.EventMapper;
 import org.event.event.model.Event;
+import org.event.event.model.EventItem;
+import org.event.event.repository.EventRepository;
 import org.event.event.service.impl.EventServiceImpl;
 import org.event.event.service.impl.S3FileUpload;
 import org.slf4j.Logger;
@@ -32,14 +31,16 @@ public class EventController {
     private final EventMapper eventMapper;
     private final JwtDecoder jwtDecoder;
     private final S3FileUpload s3FileUpload;
+    private final EventRepository eventRepository;
 
 
     @Autowired
-    public EventController(EventServiceImpl eventService, EventMapper eventMapper, JwtDecoder jwtDecoder, S3FileUpload s3FileUpload) {
+    public EventController(EventServiceImpl eventService, EventMapper eventMapper, JwtDecoder jwtDecoder, S3FileUpload s3FileUpload, EventRepository eventRepository) {
         this.eventService = eventService;
         this.eventMapper = eventMapper;
         this.jwtDecoder = jwtDecoder;
         this.s3FileUpload = s3FileUpload;
+        this.eventRepository = eventRepository;
     }
 
     @PostMapping(consumes = {"multipart/form-data"})
@@ -62,12 +63,15 @@ public class EventController {
         }
 
         String photoUrl = s3FileUpload.uploadFile(event.getImage());
-        event.getEvent().setPhotoUrl(photoUrl);
-
-
-        event.getEvent().setCreatedBy(UUID.fromString(credentials.getUserId()));
         logger.info("event {}",event);
+
         Event createdEvent = eventService.createEvent(event.getEvent());
+        createdEvent.setCreatedBy(credentials.getUserId());
+        createdEvent.setPhotoUrl(photoUrl);
+        eventRepository.save(createdEvent);
+
+
+
         EventResponseDTO createdEventDTO = eventMapper.eventToEventResponseDTO(createdEvent);
         logger.info("Event created successfully: {}", createdEventDTO);
         ResponseDTO<EventResponseDTO> response = new ResponseDTO<>("Event created successfully", true, createdEventDTO);
@@ -78,7 +82,7 @@ public class EventController {
     public ResponseEntity<ResponseDTO<List<EventResponseDTO>>> getEvents(
             @RequestParam(required = false) String venue,
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) UUID createdBy,
+            @RequestParam(required = false) String createdBy,
             @RequestParam(required = false) Boolean upcoming
     ) {
         logger.info("Received request to get events. Params: venue={}, name={}, createdBy={}, upcoming={}", venue, name, createdBy, upcoming);
@@ -112,7 +116,7 @@ public class EventController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseDTO<EventResponseDTO>> getEventById(@PathVariable UUID id) {
+    public ResponseEntity<ResponseDTO<EventResponseDTO>> getEventById(@PathVariable String id) {
         logger.info("Received request to get event by id: {}", id);
         Event event = eventService.getEventById(id)
                 .orElseThrow(() -> {
@@ -124,4 +128,15 @@ public class EventController {
         ResponseDTO<EventResponseDTO> response = new ResponseDTO<>("Event retrieved successfully", true, eventDTO);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/stats")
+    public ResponseEntity<ResponseDTO<StatDTO>> getEventStats() {
+        logger.info("Received request to get event statistics");
+        StatDTO stats = eventService.getStats();
+        ResponseDTO<StatDTO> response = new ResponseDTO<>("Event statistics retrieved successfully", true, stats);
+        return ResponseEntity.ok(response);
+    }
+
+
+
 }

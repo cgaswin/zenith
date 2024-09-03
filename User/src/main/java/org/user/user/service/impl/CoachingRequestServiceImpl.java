@@ -3,6 +3,7 @@ package org.user.user.service.impl;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.user.user.dto.CoachingRequestRequestDTO;
 import org.user.user.exception.*;
 import org.user.user.model.Athlete;
 import org.user.user.model.Coach;
@@ -38,24 +39,28 @@ public class CoachingRequestServiceImpl implements CoachingRequestService {
     }
 
     @Override
-    public CoachingRequest createCoachingRequest(CoachingRequest coachingRequest) {
-        Athlete athlete = athleteRepository.findById(coachingRequest.getAthlete().getUserId())
-                .orElseThrow(() -> new AthleteNotFoundException("Athlete not found"));
-        Coach coach = coachRepository.findById(coachingRequest.getCoach().getUserId())
-                .orElseThrow(() -> new CoachNotFoundException("Coach not found"));
-        Optional<CoachingRelationship> relationship = coachingRelationshipRepository.findByAthleteId(coachingRequest.getAthlete().getId());
-        if(!coach.isAcceptingRequests()){
-            throw new CoachNotAvailableForRequestException("Coach is not available to accept request");
-        }
-        if(relationship.isEmpty()){
-            coachingRequest.setAthlete(athlete);
-            coachingRequest.setCoach(coach);
+    public CoachingRequest createCoachingRequest(CoachingRequestRequestDTO requestDTO) {
+        Athlete athlete = athleteRepository.findById(requestDTO.getAthleteId())
+                .orElseThrow(() -> new AthleteNotFoundException("Athlete not found with ID: " + requestDTO.getAthleteId()));
+        Coach coach = coachRepository.findById(requestDTO.getCoachId())
+                .orElseThrow(() -> new CoachNotFoundException("Coach not found with ID: " + requestDTO.getCoachId()));
 
-            return coachingRequestRepository.save(coachingRequest);
-        }else{
-            throw new CoachAlreadyAssignedException("Coach Already Assigned");
+        if (!coach.isAcceptingRequests()) {
+            throw new CoachNotAvailableForRequestException("Coach is not available to accept requests");
         }
 
+        Optional<CoachingRelationship> relationship = coachingRelationshipRepository.findByAthleteId(athlete.getId());
+        if (relationship.isPresent()) {
+            throw new CoachAlreadyAssignedException("Athlete already has a coach assigned");
+        }
+
+        CoachingRequest coachingRequest = new CoachingRequest();
+        coachingRequest.setAthlete(athlete);
+        coachingRequest.setCoach(coach);
+        coachingRequest.setStatus(CoachingRequest.Status.PENDING);
+        coachingRequest.setRequestDate(LocalDateTime.now());
+
+        return coachingRequestRepository.save(coachingRequest);
     }
 
     @Override

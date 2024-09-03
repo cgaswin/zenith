@@ -15,7 +15,7 @@ public class CoachResponseDTO {
     private String id;
     private String name;
     private String gender;
-    private Date dob;
+    private String dob;
     private String category;
     private String description;
     private String photoUrl;

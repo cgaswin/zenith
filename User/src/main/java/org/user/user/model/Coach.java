@@ -6,10 +6,12 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import org.user.user.commons.utils.StringPrefixedSequenceIdGenerator;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -36,7 +38,7 @@ public class Coach {
     private String userId;
     private String name;
     private String gender;
-    private Date dob;
+    private String dob;
     private String category;
     private String description;
     private String photoUrl;
@@ -45,12 +47,23 @@ public class Coach {
 
     private String achievements;
 
-    public List<String> getAchievements(){
-        return this.achievements!=null ? Arrays.asList(achievements.split(",")):null;
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
     }
 
-    public void setAchievements(List<String> achievements){
-        this.achievements = achievements!=null?String.join(",",achievements):null;
+    public List<String> getAchievements() {
+        return this.achievements != null ? Arrays.asList(achievements.split(",")) : null;
+    }
+
+    public void setAchievements(List<String> achievements) {
+        this.achievements = achievements != null ? String.join(",", achievements) : null;
     }
 
 

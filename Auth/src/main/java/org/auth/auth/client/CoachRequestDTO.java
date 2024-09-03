@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CoachRequestDTO {
     private String name;
-    private Date dob;
+    private String dob;
     private String gender;
     private String category;
     private String description;

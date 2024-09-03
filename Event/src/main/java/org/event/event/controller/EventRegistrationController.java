@@ -26,7 +26,7 @@ import org.event.event.model.EventRegistration.Status;
 
 
 import java.util.List;
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping("/api/v1/registration")
@@ -48,7 +48,7 @@ public class EventRegistrationController {
         this.jwtDecoder = jwtDecoder;
     }
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<ResponseDTO<EventRegistrationResponseDTO>> createEventRegistration(
             @RequestBody EventRegistrationRequestDTO requestDTO,
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader
@@ -84,6 +84,15 @@ public class EventRegistrationController {
                     return new EventItemNotFoundException("Event item not found with id: " + requestDTO.getEventItemId());
                 });
 
+        boolean alreadyRegistered = eventRegistrationService.isAthleteRegisteredForEventItem(
+                requestDTO.getAthleteId(), requestDTO.getEventItemId());
+
+        if (alreadyRegistered) {
+            return new ResponseEntity<>(new ResponseDTO<>("Athlete is already registered for this event item", false, null),
+                    HttpStatus.BAD_REQUEST);
+        }
+
+
         EventRegistration eventRegistration = eventRegistrationMapper.eventRegistrationRequestDtoToEventRegistration(requestDTO);
         eventRegistration.setEvent(event);
         eventRegistration.setEventItem(eventItem);
@@ -102,7 +111,7 @@ public class EventRegistrationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseDTO<EventRegistrationResponseDTO>> getEventRegistrationById(@PathVariable UUID id) {
+    public ResponseEntity<ResponseDTO<EventRegistrationResponseDTO>> getEventRegistrationById(@PathVariable String id) {
         logger.info("Received request to get event registration by id: {}", id);
 
         EventRegistration eventRegistration = eventRegistrationService.getEventRegistrationById(id)
@@ -134,7 +143,7 @@ public class EventRegistrationController {
     }
 
     @GetMapping("/event/{eventId}")
-    public ResponseEntity<ResponseDTO<List<EventRegistrationResponseDTO>>> getRegistrationsByEventId(@PathVariable UUID eventId) {
+    public ResponseEntity<ResponseDTO<List<EventRegistrationResponseDTO>>> getRegistrationsByEventId(@PathVariable String eventId) {
         logger.info("Received request to get registrations for event id: {}", eventId);
 
         List<EventRegistration> eventRegistrations = eventRegistrationService.getRegistrationsByEventId(eventId)
@@ -153,7 +162,7 @@ public class EventRegistrationController {
     }
 
     @GetMapping("/eventItem/{eventItemId}")
-    public ResponseEntity<ResponseDTO<List<EventRegistrationResponseDTO>>> getRegistrationsByEventItemId(@PathVariable UUID eventItemId) {
+    public ResponseEntity<ResponseDTO<List<EventRegistrationResponseDTO>>> getRegistrationsByEventItemId(@PathVariable String eventItemId) {
         logger.info("Received request to get registrations for event item id: {}", eventItemId);
 
         List<EventRegistration> eventRegistrations = eventRegistrationService.getRegistrationsByEventItemId(eventItemId)
@@ -174,39 +183,92 @@ public class EventRegistrationController {
 
     @PatchMapping("/{id}/status")
     public ResponseEntity<ResponseDTO<EventRegistrationResponseDTO>> updateStatus(
-            @PathVariable UUID id,
-            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
-            @RequestParam Status status) {
-        logger.info("Received request to update status for event registration ID: {}", id);
+            @PathVariable String id,
+            @RequestParam EventRegistration.Status status,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
 
+        // Authorization check (as you had before)
         if (authorizationHeader == null || authorizationHeader.isEmpty()) {
             throw new AuthorizationException("Authorization header is missing");
         }
 
         String token = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
-        if(token.isEmpty()){
+        if (token.isEmpty()) {
             throw new AuthorizationException("Authorization token is missing");
         }
 
         JwtPayloadDTO credentials = jwtDecoder.decodeJwt(token);
-        logger.info(credentials.toString());
-        logger.info(credentials.getRole());
-        if(!"ADMIN".equalsIgnoreCase(credentials.getRole())){
+        if (!"ADMIN".equalsIgnoreCase(credentials.getRole())) {
             throw new AuthorizationException("You do not have permission to access");
         }
 
-        EventRegistration existingRegistration = eventRegistrationService.getEventRegistrationById(id)
-                .orElseThrow(() -> new EventRegistrationNotFoundException("Event registration not found with id: " + id));
+        EventRegistration updatedRegistration = eventRegistrationService.updateRegistrationStatus(id, status);
+        EventRegistrationResponseDTO responseDTO = eventRegistrationMapper.eventRegistrationToEventRegistrationResponseDTO(updatedRegistration);
 
-
-        existingRegistration.setStatus(status);
-        EventRegistration updatedEventRegistration = eventRegistrationService.createEventRegistration(existingRegistration);
-
-        EventRegistrationResponseDTO responseDTO = eventRegistrationMapper.eventRegistrationToEventRegistrationResponseDTO(updatedEventRegistration);
-
-        logger.info("Event registration status updated successfully: {}", responseDTO);
         ResponseDTO<EventRegistrationResponseDTO> response = new ResponseDTO<>("Registration status updated successfully", true, responseDTO);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/event/{eventId}/athlete/{athleteId}")
+    public ResponseEntity<ResponseDTO<List<EventRegistrationResponseDTO>>> getRegistrationsByEventAndAthlete(
+            @PathVariable String eventId,
+            @PathVariable String athleteId) {
+        logger.info("Received request to get registrations for event id: {} and athlete id: {}", eventId, athleteId);
+
+        List<EventRegistration> eventRegistrations = eventRegistrationService.getRegistrationsByEventAndAthlete(eventId, athleteId)
+                .orElseThrow(() -> {
+                    logger.warn("No registrations found for event id: {} and athlete id: {}", eventId, athleteId);
+                    return new EventRegistrationNotFoundException("No registrations found for event id: " + eventId + " and athlete id: " + athleteId);
+                });
+
+        List<EventRegistrationResponseDTO> responseDTOs = eventRegistrationMapper.eventRegistrationsToEventRegistrationResponseDTOs(eventRegistrations);
+
+        logger.info("Retrieved {} registrations for event id: {} and athlete id: {}", eventRegistrations.size(), eventId, athleteId);
+
+        ResponseDTO<List<EventRegistrationResponseDTO>> response = new ResponseDTO<>("Registrations for event and athlete retrieved successfully", true, responseDTOs);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/pending")
+    public ResponseEntity<ResponseDTO<List<EventRegistrationResponseDTO>>> getPendingRegistrations(
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+        // Add authorization check for admin here
+        JwtPayloadDTO credentials = jwtDecoder.decodeJwt(authorizationHeader.substring(7));
+        if (!"ADMIN".equalsIgnoreCase(credentials.getRole())) {
+            throw new AuthorizationException("You do not have permission to access");
+        }
+
+        List<EventRegistration> pendingRegistrations = eventRegistrationService.getPendingRegistrations();
+        List<EventRegistrationResponseDTO> responseDTOs = eventRegistrationMapper.eventRegistrationsToEventRegistrationResponseDTOs(pendingRegistrations);
+
+        ResponseDTO<List<EventRegistrationResponseDTO>> response = new ResponseDTO<>("Pending registrations retrieved successfully", true, responseDTOs);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/approved/event-item/{eventItemId}")
+    public ResponseEntity<ResponseDTO<List<EventRegistrationResponseDTO>>> getApprovedRegistrationsByEventItemId(@PathVariable String eventItemId) {
+        List<EventRegistration> approvedRegistrations = eventRegistrationService.getApprovedRegistrationsByEventItemId(eventItemId);
+        List<EventRegistrationResponseDTO> responseDTOs = eventRegistrationMapper.eventRegistrationsToEventRegistrationResponseDTOs(approvedRegistrations);
+        ResponseDTO<List<EventRegistrationResponseDTO>> response = new ResponseDTO<>("Approved registrations retrieved successfully", true, responseDTOs);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/athlete/{athleteId}")
+    public ResponseEntity<ResponseDTO<List<EventRegistrationResponseDTO>>> getRegistrationsByAthleteId(@PathVariable String athleteId) {
+        logger.info("Received request to get registrations for athlete id: {}", athleteId);
+
+        List<EventRegistration> eventRegistrations = eventRegistrationService.getRegistrationsByAthleteId(athleteId)
+                .orElseThrow(() -> {
+                    logger.warn("No registrations found for athlete id: {}", athleteId);
+                    return new EventRegistrationNotFoundException("No registrations found for athlete id: " + athleteId);
+                });
+
+        List<EventRegistrationResponseDTO> responseDTOs = eventRegistrationMapper.eventRegistrationsToEventRegistrationResponseDTOs(eventRegistrations);
+
+        logger.info("Retrieved {} registrations for athlete id: {}", eventRegistrations.size(), athleteId);
+
+        ResponseDTO<List<EventRegistrationResponseDTO>> response = new ResponseDTO<>("Registrations for athlete retrieved successfully", true, responseDTOs);
+        return ResponseEntity.ok(response);
     }
 
 }

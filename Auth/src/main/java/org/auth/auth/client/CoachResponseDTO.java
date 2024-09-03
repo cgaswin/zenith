@@ -13,7 +13,7 @@ import java.util.List;
 public class CoachResponseDTO {
     private String id;
     private String name;
-    private Date dob;
+    private String dob;
     private String gender;
     private String category;
     private String description;

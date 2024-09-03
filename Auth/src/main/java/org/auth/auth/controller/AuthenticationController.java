@@ -1,7 +1,9 @@
 package org.auth.auth.controller;
 
 import org.auth.auth.client.AthleteRequestDTO;
+import org.auth.auth.client.AthleteResponseDTO;
 import org.auth.auth.client.CoachRequestDTO;
+import org.auth.auth.client.CoachResponseDTO;
 import org.auth.auth.dto.AuthenticationResponseDTO;
 import org.auth.auth.dto.RegistrationResponseDTO;
 import org.auth.auth.dto.ResponseDTO;
@@ -9,6 +11,7 @@ import org.auth.auth.dto.UserRegistrationDTO;
 import org.auth.auth.feign.UserServiceClient;
 import org.auth.auth.model.Role;
 import org.auth.auth.model.User;
+import org.auth.auth.repository.UserRepository;
 import org.auth.auth.service.AuthenticationService;
 import org.auth.auth.service.JwtService;
 import org.auth.auth.service.S3FileUpload;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -32,13 +36,15 @@ public class AuthenticationController {
     private final JwtService jwtService;
     private final UserServiceClient userServiceClient;
     private final S3FileUpload s3FileUpload;
+    private final UserRepository userRepository;
 
     @Autowired
-    public AuthenticationController(AuthenticationService authenticationService, JwtService jwtService, UserServiceClient userServiceClient, S3FileUpload s3FileUpload) {
+    public AuthenticationController(AuthenticationService authenticationService, JwtService jwtService, UserServiceClient userServiceClient, S3FileUpload s3FileUpload, UserRepository userRepository) {
         this.authenticationService = authenticationService;
         this.jwtService = jwtService;
         this.userServiceClient=userServiceClient;
         this.s3FileUpload = s3FileUpload;
+        this.userRepository = userRepository;
     }
 
     @PostMapping(path = "/register",consumes = {"multipart/form-data" })
@@ -58,9 +64,15 @@ public class AuthenticationController {
 
 
         if (registeredUser.getRole() == Role.ATHLETE) {
-            createAthleteInUserService(registeredUser, userRegistrationDTO);
+            String roleId = createAthleteInUserService(registeredUser, userRegistrationDTO);
+            System.out.print(roleId);
+            registeredUser.setRoleId(roleId);
+            userRepository.save(registeredUser);
         } else if (registeredUser.getRole() == Role.COACH) {
-            createCoachInUserService(registeredUser, userRegistrationDTO);
+            String roleId = createCoachInUserService(registeredUser, userRegistrationDTO);
+            System.out.print(roleId);
+            registeredUser.setRoleId(roleId);
+            userRepository.save(registeredUser);
         }
 
         RegistrationResponseDTO registrationResponseDTO = new RegistrationResponseDTO(
@@ -68,7 +80,8 @@ public class AuthenticationController {
                 registeredUser.getName(),
                 registeredUser.getUsername(),
                 registeredUser.getEmail(),
-                registeredUser.getRole()
+                registeredUser.getRole(),
+                registeredUser.getRoleId()
         );
         ResponseDTO<RegistrationResponseDTO> response = new ResponseDTO<>("User registered successfully", true, registrationResponseDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -88,7 +101,7 @@ public class AuthenticationController {
         return ResponseEntity.ok("This is secure data only accessible to authenticated users!");
     }
 
-    private void createAthleteInUserService(User user, UserRegistrationDTO registrationDTO) {
+    private String createAthleteInUserService(User user, UserRegistrationDTO registrationDTO) {
         AthleteRequestDTO athleteRequest = new AthleteRequestDTO();
         athleteRequest.setName(user.getName());
         athleteRequest.setDob(registrationDTO.getDob());
@@ -102,14 +115,16 @@ public class AuthenticationController {
         String authToken = "Bearer " + jwtService.generateToken(user);
 
         try {
-            userServiceClient.createAthlete(athleteRequest, authToken);
+            ResponseEntity<ResponseDTO<AthleteResponseDTO>> response =  userServiceClient.createAthlete(athleteRequest, authToken);
             logger.info("Athlete created in user service for user: {}", user.getId());
+            return  Objects.requireNonNull(response.getBody()).getData().getId();
         } catch (Exception e) {
             logger.error("Failed to create athlete in user service: {}", e.getMessage());
         }
+        return "";
     }
 
-    private void createCoachInUserService(User user, UserRegistrationDTO registrationDTO) {
+    private String createCoachInUserService(User user, UserRegistrationDTO registrationDTO) {
         CoachRequestDTO coachRequest = new CoachRequestDTO();
         coachRequest.setName(user.getName());
         coachRequest.setDob(registrationDTO.getDob());
@@ -122,11 +137,14 @@ public class AuthenticationController {
         String authToken = "Bearer " + jwtService.generateToken(user);
 
         try {
-            userServiceClient.createCoach(coachRequest, authToken);
+            ResponseEntity<ResponseDTO<CoachResponseDTO>> response = userServiceClient.createCoach(coachRequest, authToken);
+            System.out.println(response);
             logger.info("Coach created in user service for user: {}", user.getId());
+            return  Objects.requireNonNull(response.getBody()).getData().getId();
         } catch (Exception e) {
             logger.error("Failed to create coach in user service: {}", e.getMessage());
         }
+        return "";
     }
 }
 

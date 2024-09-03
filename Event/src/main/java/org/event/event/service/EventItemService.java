@@ -11,9 +11,9 @@ public interface EventItemService {
 
     List<EventItem> getAllEventItems();
 
-    Optional<EventItem> getEventItemById(UUID id);
+    Optional<EventItem> getEventItemById(String id);
 
-    Optional<List<EventItem>> getEventItemsByEventId(UUID id);
+    Optional<List<EventItem>> getEventItemsByEventId(String id);
 
 
 }

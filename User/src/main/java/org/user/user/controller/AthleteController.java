@@ -8,10 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.user.user.commons.utils.JwtDecoder;
-import org.user.user.dto.AthleteRequestDTO;
-import org.user.user.dto.AthleteResponseDTO;
-import org.user.user.dto.JwtPayloadDTO;
-import org.user.user.dto.ResponseDTO;
+import org.user.user.dto.*;
 import org.user.user.exception.AthleteNotFoundException;
 import org.user.user.exception.AuthorizationException;
 import org.user.user.mapper.AthleteMapper;
@@ -52,7 +49,7 @@ public class AthleteController {
         JwtPayloadDTO credentials = jwtDecoder.decodeJwt(token);
         logger.info(credentials.toString());
         logger.info(credentials.getRole());
-        if(!"ATHLETE".equalsIgnoreCase(credentials.getRole())){
+        if("COACH".equalsIgnoreCase(credentials.getRole())){
             throw new AuthorizationException("You do not have permission to access");
         }
 
@@ -106,7 +103,7 @@ public class AthleteController {
         JwtPayloadDTO credentials = jwtDecoder.decodeJwt(token);
         logger.info(credentials.toString());
         logger.info(credentials.getRole());
-        if(!"ADMIN".equalsIgnoreCase(credentials.getRole())){
+        if("COACH".equalsIgnoreCase(credentials.getRole())){
             throw new AuthorizationException("You do not have permission to access");
         }
 
@@ -120,6 +117,20 @@ public class AthleteController {
         logger.info("Athlete updated successfully: {}", updatedAthleteDTO);
         ResponseDTO<AthleteResponseDTO> response = new ResponseDTO<>("Athlete updated successfully", true, updatedAthleteDTO);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<ResponseDTO<StatDTO>> getEventStats() {
+        logger.info("Received request to get event statistics");
+        StatDTO stats = athleteService.getStats();
+        ResponseDTO<StatDTO> response = new ResponseDTO<>("Event statistics retrieved successfully", true, stats);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{athleteId}/coaching-status")
+    public ResponseEntity<ResponseDTO<CoachingRequestResponseDTO>> getCoachingStatus(@PathVariable String athleteId) {
+        CoachingRequestResponseDTO status = athleteService.getCoachingStatus(athleteId);
+        return ResponseEntity.ok(new ResponseDTO<>("Coaching status retrieved successfully", true, status));
     }
 
 }

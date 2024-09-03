@@ -20,7 +20,7 @@ public class UserRegistrationDTO {
         private MultipartFile image;
 
         // Additional fields for Athlete
-        private Date dob;
+        private String dob;
         private String gender;
         private String height;
         private String weight;

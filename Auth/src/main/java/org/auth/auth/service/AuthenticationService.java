@@ -75,7 +75,7 @@ public class AuthenticationService {
         String token = jwtService.generateToken(user);
 
         logger.info("User with email {} authenticated successfully", user.getEmail());
-        return new AuthenticationResponseDTO(token, user.getId(),user.getUsername(),user.getRole().name());
+        return new AuthenticationResponseDTO(token, user.getId(),user.getUsername(),user.getRole().name(),user.getRoleId());
     }
 
 }
