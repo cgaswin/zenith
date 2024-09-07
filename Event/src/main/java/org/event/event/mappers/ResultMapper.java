@@ -17,7 +17,9 @@ public interface ResultMapper {
     @Mapping(target = "eventItem.id", source = "eventItemId")
     Result resultRequestDTOToResult(ResultRequestDTO resultRequestDTO);
 
+    @Mapping(target = "eventId", source = "event.id")
     @Mapping(target = "eventName", source = "event.name")
+    @Mapping(target = "eventItemId", source = "eventItem.id")
     @Mapping(target = "eventItemName", source = "eventItem.name")
     ResultResponseDTO resultToResultResponseDTO(Result result);
 

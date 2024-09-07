@@ -78,7 +78,9 @@ public class ResultController {
     public ResponseEntity<ResponseDTO<List<ResultResponseDTO>>> getResultsByEventId(@PathVariable String eventId) {
         logger.info("Fetching results for event with id: {}", eventId);
         List<Result> results = resultService.getResultsByEventId(eventId);
+        System.out.println(results);
         List<ResultResponseDTO> resultResponseDTOs = resultMapper.resultsToResultResponseDTOs(results);
+        System.out.println(resultResponseDTOs);
         ResponseDTO<List<ResultResponseDTO>> response = new ResponseDTO<>("Results fetched successfully", true, resultResponseDTOs);
         return ResponseEntity.ok(response);
     }
@@ -88,6 +90,7 @@ public class ResultController {
         logger.info("Fetching results for event item with id: {}", eventItemId);
         List<Result> results = resultService.getResultsByEventItemId(eventItemId);
         List<ResultResponseDTO> resultResponseDTOs = resultMapper.resultsToResultResponseDTOs(results);
+
         ResponseDTO<List<ResultResponseDTO>> response = new ResponseDTO<>("Results fetched successfully", true, resultResponseDTOs);
         return ResponseEntity.ok(response);
     }
